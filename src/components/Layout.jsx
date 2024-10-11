@@ -97,26 +97,36 @@ export default function Layout({ children }) {
 						>
 							Expense Tracker
 						</Typography>
-						{pages.map((page) => (
-							<Typography
-								variant='h6'
-								noWrap
-								component='a'
-								href={`/${page.toLowerCase()}`}
-								key={page}
-								sx={{
-									mr: 2,
-									display: { xs: 'none', md: 'flex' },
-									fontWeight: 700,
-									textDecoration: 'none',
-									color: 'black',
-									letterSpacing: '.3rem',
-								}}
-							>
-								<Link to={page.toLowerCase()}>{page}</Link>
-							</Typography>
-						))}
-						<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+						<Box sx={{ flexGrow: 1, display: 'flex' }}>
+							{pages.map((page) => (
+								<Typography
+									variant='h6'
+									noWrap
+									component='a'
+									href={`/${page.toLowerCase()}`}
+									key={page}
+									sx={{
+										mr: 2,
+										display: { xs: 'none', md: 'flex' },
+										fontWeight: 700,
+										textDecoration: 'none',
+										color: 'black',
+										letterSpacing: '.3rem',
+									}}
+								>
+									<Link to={page.toLowerCase()}>{page}</Link>
+								</Typography>
+							))}
+						</Box>
+						<Box
+							sx={{
+								flexGrow: 1,
+								display: { xs: 'flex', md: 'none' },
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								width: '100%',
+							}}
+						>
 							<IconButton
 								size='large'
 								onClick={handleOpenNavMenu}
