@@ -1,23 +1,12 @@
-# React Template
+# Expense Tracker App
 
-This template provides a fast way to start creating new apps with React.
+## Version 1.0.0
 
-## Installed Packages
+## What this app is about:
+This app is to keep track of the user's spending and to create good habits for budgeting and saving.
 
-This template has the following packages installed:
+## Notes for public:
+This app is still in current developement. Check back later!
 
-- @emotion/react
-- @emotion/styled
-- @mui/icons-material
-- @mui/lab
-- @mui/material
-- react-router-dom
-
-## Use / Run template
-
-To use/run this template, run the following commands:
-
-```
-npm i
-npm run dev
-```
+## Notes for developers:
+To run this app as a developer, run `npm i` and `npm run dev` after cloning this repository.
