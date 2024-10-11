@@ -1,4 +1,5 @@
 // Components to add to the app for use in pages
+import Btn from '../components/Btn';
 
 // TODO: Create components
 /**
@@ -33,3 +34,6 @@
  * Dashboard Page
  * -
  */
+
+// Global components
+export { Btn };
