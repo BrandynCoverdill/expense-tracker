@@ -256,6 +256,7 @@ export default function Layout({ children }) {
 					</Box>
 				</Box>
 			</Modal>
+			{children}
 		</>
 	);
 }
