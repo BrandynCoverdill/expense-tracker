@@ -98,26 +98,49 @@ export default function Layout({ children }) {
 							Expense Tracker
 						</Typography>
 						<Box sx={{ flexGrow: 1, display: 'flex' }}>
-							{pages.map((page) => (
-								<Typography
-									variant='h6'
-									noWrap
-									href={`/${page.toLowerCase()}`}
-									key={page}
-									sx={{
-										mr: 2,
-										display: { xs: 'none', md: 'flex' },
-										fontWeight: 700,
-										textDecoration: 'none',
-										color: 'black',
-										letterSpacing: '.3rem',
-									}}
-									component={Link}
-									to={page.toLowerCase()}
-								>
-									{page}
-								</Typography>
-							))}
+							{pages.map((page) => {
+								if (page === 'Dashboard') {
+									return (
+										<Typography
+											variant='h6'
+											noWrap
+											key={page}
+											sx={{
+												mr: 2,
+												display: { xs: 'none', md: 'flex' },
+												fontWeight: 700,
+												textDecoration: 'none',
+												color: 'black',
+												letterSpacing: '.3rem',
+											}}
+											component={Link}
+											to='/'
+										>
+											{page}
+										</Typography>
+									);
+								}
+								return (
+									<Typography
+										variant='h6'
+										noWrap
+										href={`/${page.toLowerCase()}`}
+										key={page}
+										sx={{
+											mr: 2,
+											display: { xs: 'none', md: 'flex' },
+											fontWeight: 700,
+											textDecoration: 'none',
+											color: 'black',
+											letterSpacing: '.3rem',
+										}}
+										component={Link}
+										to={page.toLowerCase()}
+									>
+										{page}
+									</Typography>
+								);
+							})}
 						</Box>
 						<Box
 							sx={{
@@ -150,22 +173,42 @@ export default function Layout({ children }) {
 									display: { xs: 'block', md: 'none' },
 								}}
 							>
-								{pages.map((page) => (
-									<MenuItem
-										key={page}
-										onClick={handleCloseNavMenu}
-										disableRipple
-									>
-										<Typography
-											textAlign='center'
-											sx={{ textDecoration: 'none', color: 'black' }}
-											component={Link}
-											to={page.toLowerCase()}
+								{pages.map((page) => {
+									if (page === 'Dashboard') {
+										return (
+											<MenuItem
+												key={page}
+												onClick={handleCloseNavMenu}
+												disableRipple
+											>
+												<Typography
+													textAlign='center'
+													sx={{ textDecoration: 'none', color: 'black' }}
+													component={Link}
+													to={'/'}
+												>
+													{page}
+												</Typography>
+											</MenuItem>
+										);
+									}
+									return (
+										<MenuItem
+											key={page}
+											onClick={handleCloseNavMenu}
+											disableRipple
 										>
-											{page}
-										</Typography>
-									</MenuItem>
-								))}
+											<Typography
+												textAlign='center'
+												sx={{ textDecoration: 'none', color: 'black' }}
+												component={Link}
+												to={page.toLowerCase()}
+											>
+												{page}
+											</Typography>
+										</MenuItem>
+									);
+								})}
 							</Menu>
 						</Box>
 						<Box sx={{ flexGrow: 0 }}>
