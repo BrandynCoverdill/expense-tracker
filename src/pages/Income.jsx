@@ -13,8 +13,11 @@ import {
 	Accordion,
 	AccordionDetails,
 	AccordionSummary,
+	IconButton,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useIncome } from '../utils/hooks';
 import { useEffect, useState } from 'react';
 
@@ -74,12 +77,12 @@ export default function Income() {
 	}, [income]);
 
 	return (
-		<Container sx={{ p: 2 }}>
+		<Box sx={{ p: 2 }}>
 			<Typography variant='h4'>Income</Typography>
 			{/* A grid to hold tables for each category */}
 
 			{/* Container for larger viewports */}
-			<Container
+			<Box
 				sx={{
 					display: { xs: 'none', md: 'grid' },
 					gridTemplateColumns: '1fr 1fr',
@@ -88,7 +91,12 @@ export default function Income() {
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
 				{categoryArray.map((category) => (
-					<Container key={category}>
+					<Container
+						key={category}
+						sx={{
+							overflowX: 'auto',
+						}}
+					>
 						<Accordion>
 							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
 								<Typography>{category}</Typography>
@@ -102,6 +110,7 @@ export default function Income() {
 												<TableCell>Amount</TableCell>
 												<TableCell>Date</TableCell>
 												<TableCell>Description</TableCell>
+												<TableCell>Actions</TableCell>
 											</TableRow>
 										</TableHead>
 										<TableBody>
@@ -115,6 +124,16 @@ export default function Income() {
 															{income.date.toLocaleDateString()}
 														</TableCell>
 														<TableCell>{income.desc}</TableCell>
+														<TableCell>
+															<Box sx={{ display: 'flex', gap: 2 }}>
+																<IconButton disableRipple sx={{ padding: 0 }}>
+																	<EditIcon />
+																</IconButton>
+																<IconButton disableRipple sx={{ padding: 0 }}>
+																	<DeleteIcon />
+																</IconButton>
+															</Box>
+														</TableCell>
 													</TableRow>
 												))}
 										</TableBody>
@@ -124,10 +143,10 @@ export default function Income() {
 						</Accordion>
 					</Container>
 				))}
-			</Container>
+			</Box>
 
 			{/* Container for smaller viewports */}
-			<Container
+			<Box
 				sx={{
 					display: { xs: 'grid', md: 'none' },
 					gridTemplateColumns: '1fr',
@@ -136,7 +155,12 @@ export default function Income() {
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
 				{categoryArray.map((category) => (
-					<Accordion key={category}>
+					<Accordion
+						key={category}
+						sx={{
+							overflowX: 'auto',
+						}}
+					>
 						<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
 							<Typography>{category}</Typography>
 						</AccordionSummary>
@@ -149,6 +173,7 @@ export default function Income() {
 											<TableCell>Amount</TableCell>
 											<TableCell>Date</TableCell>
 											<TableCell>Description</TableCell>
+											<TableCell>Actions</TableCell>
 										</TableRow>
 									</TableHead>
 									<TableBody>
@@ -162,6 +187,16 @@ export default function Income() {
 														{income.date.toLocaleDateString()}
 													</TableCell>
 													<TableCell>{income.desc}</TableCell>
+													<TableCell>
+														<Box sx={{ display: 'flex', gap: 2 }}>
+															<IconButton disableRipple sx={{ padding: 0 }}>
+																<EditIcon />
+															</IconButton>
+															<IconButton disableRipple sx={{ padding: 0 }}>
+																<DeleteIcon />
+															</IconButton>
+														</Box>
+													</TableCell>
 												</TableRow>
 											))}
 									</TableBody>
@@ -170,7 +205,7 @@ export default function Income() {
 						</AccordionDetails>
 					</Accordion>
 				))}
-			</Container>
-		</Container>
+			</Box>
+		</Box>
 	);
 }
