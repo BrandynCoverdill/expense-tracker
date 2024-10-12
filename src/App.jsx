@@ -15,20 +15,19 @@ const theme = createTheme({});
 export default function App() {
 	return (
 		<ThemeProvider theme={theme}>
-			<CssBaseline>
-				<Router>
-					<Layout>
-						<Routes>
-							<Route path='/' element={<Dashboard />} />
-							<Route path='/income' element={<Income />} />
-							<Route path='/savings' element={<Savings />} />
-							<Route path='/expenses' element={<Expenses />} />
-							<Route path='/budgets' element={<Budgets />} />
-							<Route path='*' element={<InvalidPage />} />
-						</Routes>
-					</Layout>
-				</Router>
-			</CssBaseline>
+			<CssBaseline />
+			<Router>
+				<Layout>
+					<Routes>
+						<Route path='/' element={<Dashboard />} />
+						<Route path='/income' element={<Income />} />
+						<Route path='/savings' element={<Savings />} />
+						<Route path='/expenses' element={<Expenses />} />
+						<Route path='/budgets' element={<Budgets />} />
+						<Route path='*' element={<InvalidPage />} />
+					</Routes>
+				</Layout>
+			</Router>
 		</ThemeProvider>
 	);
 }
