@@ -102,7 +102,6 @@ export default function Layout({ children }) {
 								<Typography
 									variant='h6'
 									noWrap
-									component='a'
 									href={`/${page.toLowerCase()}`}
 									key={page}
 									sx={{
@@ -113,8 +112,10 @@ export default function Layout({ children }) {
 										color: 'black',
 										letterSpacing: '.3rem',
 									}}
+									component={Link}
+									to={page.toLowerCase()}
 								>
-									<Link to={page.toLowerCase()}>{page}</Link>
+									{page}
 								</Typography>
 							))}
 						</Box>
@@ -155,14 +156,14 @@ export default function Layout({ children }) {
 										onClick={handleCloseNavMenu}
 										disableRipple
 									>
-										<Link to={page.toLowerCase()}>
-											<Typography
-												textAlign='center'
-												sx={{ textDecoration: 'none', color: 'black' }}
-											>
-												{page}
-											</Typography>
-										</Link>
+										<Typography
+											textAlign='center'
+											sx={{ textDecoration: 'none', color: 'black' }}
+											component={Link}
+											to={page.toLowerCase()}
+										>
+											{page}
+										</Typography>
 									</MenuItem>
 								))}
 							</Menu>
