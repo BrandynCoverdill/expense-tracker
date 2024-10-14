@@ -14,12 +14,16 @@ import {
 	AccordionDetails,
 	AccordionSummary,
 	IconButton,
+	TextField,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useIncome } from '../utils/hooks';
 import { useEffect, useState } from 'react';
+import { format, parseISO, formatISO, parse } from 'date-fns';
 
 export default function Income() {
 	const sampleData = [
@@ -27,7 +31,7 @@ export default function Income() {
 			id: 0,
 			name: 'Job Income',
 			amount: 1000.5,
-			date: new Date(),
+			date: '2024-10-24',
 			category: 'Job',
 			desc: '',
 		},
@@ -35,7 +39,7 @@ export default function Income() {
 			id: 1,
 			name: 'Rent from a roomate',
 			amount: 700,
-			date: new Date(),
+			date: '2024-10-24',
 			category: 'Housing',
 			desc: 'Rent from Mike',
 		},
@@ -43,7 +47,7 @@ export default function Income() {
 			id: 2,
 			name: 'Rent from a roomate',
 			amount: 700,
-			date: new Date(),
+			date: '2024-10-24',
 			category: 'Housing',
 			desc: 'Rent from Civ',
 		},
@@ -51,7 +55,7 @@ export default function Income() {
 			id: 3,
 			name: 'Scratch Ticket',
 			amount: 27.79,
-			date: new Date(),
+			date: '2024-10-24',
 			category: 'Other',
 			desc: 'Won a scratch ticket and some change on the side of the machine.',
 		},
@@ -60,6 +64,19 @@ export default function Income() {
 	const [income, setIncome] = useIncome(sampleData);
 	const categorySet = new Set();
 	const [categoryArray, setCategoryArray] = useState([]);
+
+	// Edit row state in a table
+	const [editRowId, setEditRowId] = useState(null);
+
+	// State to track the values of the edited row
+	const [editValues, setEditValues] = useState({});
+
+	// State to track errors on invalid inputs
+	const [errors, setErrors] = useState({
+		name: '',
+		amount: '',
+		date: '',
+	});
 
 	// Create a Set for unique categories
 	useEffect(() => {
@@ -76,8 +93,109 @@ export default function Income() {
 		setCategoryArray([...categorySet]);
 	}, [income]);
 
+	/**
+	 * Handles the event of the user clicking the delete button in a row in the table.
+	 * Removes the income item from the income state array.
+	 * @param {number} id The id of the income item to delete.
+	 * @return {void} No return value.
+	 */
 	const handleDelete = (id) => {
 		setIncome(income.filter((item) => item.id !== id));
+	};
+
+	/**
+	 * Handles the event of the user clicking the edit button in a row in the table.
+	 * Sets the editRowId state to the id of the income item to edit and sets the editValues
+	 * state to the income item to edit, with the date formatted as 'yyyy-MM-dd'.
+	 * @param {number} id The id of the income item to edit.
+	 * @param {object} income The income item to edit.
+	 * @return {void} No return value.
+	 */
+	const handleEdit = (id, income) => {
+		setEditRowId(id);
+		setEditValues({
+			...income,
+			date: format(parseISO(income.date), 'yyyy-MM-dd'),
+		});
+	};
+
+	/**
+	 * Handles the event of the user changing a value in an input field in the
+	 * edit form. Updates the editValues state with the new value.
+	 * @param {object} e The event that triggered the function.
+	 * @return {void} No return value.
+	 */
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setEditValues({
+			...editValues,
+			[name]: value,
+		});
+	};
+
+	/**
+	 * Handles the event of the user clicking the save button in the edit form.
+	 * Updates the income state array with the updated income item, and resets the editRowId
+	 * state to null.
+	 * @return {void} No return value.
+	 */
+	const handleSave = () => {
+		if (validateFields()) {
+			const updatedIncome = {
+				...editValues,
+				date: formatISO(parse(editValues.date, 'yyyy-MM-dd', new Date()), {
+					representation: 'date',
+				}),
+				amount: +editValues.amount,
+			};
+			setIncome(
+				income.map((item) => (item.id === editRowId ? updatedIncome : item))
+			);
+			setEditRowId(null);
+		}
+	};
+
+	/**
+	 * Resets the editRowId state to null, thus closing the edit form.
+	 * @return {void} No return value.
+	 */
+	const handleCancelEdit = () => {
+		setEditRowId(null);
+	};
+
+	/**
+	 * Validates the fields of the edit form for the income item.
+	 * Updates the errors state with the validation errors, if any.
+	 * Returns true if the fields are valid, false otherwise.
+	 * @return {boolean} Whether the fields are valid.
+	 */
+	const validateFields = () => {
+		let hasError = false;
+		let newErrors = { name: '', amount: '', date: '' };
+
+		// Name validation
+		if (!editValues.name.trim()) {
+			newErrors.name = 'Name is required';
+			hasError = true;
+		}
+
+		// Amount validation
+		if (
+			!editValues.amount ||
+			isNaN(editValues.amount) ||
+			editValues.amount <= 0
+		) {
+			newErrors.amount = 'Amount must be greater than 0';
+			hasError = true;
+		}
+
+		// Date validation
+		if (!editValues.date) {
+			newErrors.date = 'Date is required';
+			hasError = true;
+		}
+		setErrors(newErrors);
+		return !hasError;
 	};
 
 	return (
@@ -119,29 +237,108 @@ export default function Income() {
 										</TableHead>
 										<TableBody>
 											{income
-												.filter((income) => income.category === category)
-												.map((income) => (
-													<TableRow key={income.id}>
-														<TableCell>{income.name}</TableCell>
-														<TableCell>${income.amount}</TableCell>
-														<TableCell>
-															{income.date.toLocaleDateString()}
-														</TableCell>
-														<TableCell>{income.desc}</TableCell>
-														<TableCell>
-															<Box sx={{ display: 'flex', gap: 2 }}>
-																<IconButton disableRipple sx={{ padding: 0 }}>
-																	<EditIcon />
-																</IconButton>
-																<IconButton
-																	disableRipple
-																	sx={{ padding: 0 }}
-																	onClick={() => handleDelete(income.id)}
+												.filter((item) => item.category === category)
+												.map((item) => (
+													<TableRow key={item.id}>
+														{editRowId === item.id ? (
+															<TableCell colSpan={5} sx={{ padding: '2 1' }}>
+																<Box
+																	sx={{
+																		display: 'flex',
+																		gap: 2,
+																		flexDirection: 'column',
+																	}}
 																>
-																	<DeleteIcon />
-																</IconButton>
-															</Box>
-														</TableCell>
+																	<TextField
+																		name='name'
+																		label='Name'
+																		value={editValues.name}
+																		onChange={handleInputChange}
+																		fullWidth
+																		required
+																		error={!!errors.name}
+																		helperText={errors.name}
+																	/>
+																	<TextField
+																		name='amount'
+																		label='Amount'
+																		value={editValues.amount}
+																		onChange={handleInputChange}
+																		fullWidth
+																		required
+																		error={!!errors.amount}
+																		helperText={errors.amount}
+																	/>
+																	<TextField
+																		name='date'
+																		label='Date'
+																		type='date'
+																		value={editValues.date}
+																		onChange={handleInputChange}
+																		fullWidth
+																		required
+																		error={!!errors.date}
+																		helperText={errors.date}
+																	/>
+																	<TextField
+																		name='desc'
+																		label='Description'
+																		value={editValues.desc}
+																		onChange={handleInputChange}
+																		fullWidth
+																	/>
+																	<Box
+																		sx={{
+																			display: 'flex',
+																			gap: 2,
+																			justifyContent: 'flex-end',
+																		}}
+																	>
+																		<IconButton
+																			disableRipple
+																			sx={{ padding: 0 }}
+																			onClick={handleSave}
+																		>
+																			<SaveIcon />
+																		</IconButton>
+																		<IconButton
+																			disableRipple
+																			sx={{ padding: 0 }}
+																			onClick={handleCancelEdit}
+																		>
+																			<CancelIcon />
+																		</IconButton>
+																	</Box>
+																</Box>
+															</TableCell>
+														) : (
+															<>
+																<TableCell>{item.name}</TableCell>
+																<TableCell>${item.amount.toFixed(2)}</TableCell>
+																<TableCell>
+																	{format(parseISO(item.date), 'MM/dd/yyyy')}
+																</TableCell>
+																<TableCell>{item.desc}</TableCell>
+																<TableCell>
+																	<Box sx={{ display: 'flex', gap: 2 }}>
+																		<IconButton
+																			disableRipple
+																			sx={{ padding: 0 }}
+																			onClick={() => handleEdit(item.id, item)}
+																		>
+																			<EditIcon />
+																		</IconButton>
+																		<IconButton
+																			disableRipple
+																			sx={{ padding: 0 }}
+																			onClick={() => handleDelete(item.id)}
+																		>
+																			<DeleteIcon />
+																		</IconButton>
+																	</Box>
+																</TableCell>
+															</>
+														)}
 													</TableRow>
 												))}
 										</TableBody>
@@ -186,29 +383,108 @@ export default function Income() {
 									</TableHead>
 									<TableBody>
 										{income
-											.filter((income) => income.category === category)
-											.map((income) => (
-												<TableRow key={income.id}>
-													<TableCell>{income.name}</TableCell>
-													<TableCell>${income.amount}</TableCell>
-													<TableCell>
-														{income.date.toLocaleDateString()}
-													</TableCell>
-													<TableCell>{income.desc}</TableCell>
-													<TableCell>
-														<Box sx={{ display: 'flex', gap: 2 }}>
-															<IconButton disableRipple sx={{ padding: 0 }}>
-																<EditIcon />
-															</IconButton>
-															<IconButton
-																disableRipple
-																sx={{ padding: 0 }}
-																onClick={() => handleDelete(income.id)}
+											.filter((item) => item.category === category)
+											.map((item) => (
+												<TableRow key={item.id}>
+													{editRowId === item.id ? (
+														<TableCell colSpan={5} sx={{ padding: '2 1' }}>
+															<Box
+																sx={{
+																	display: 'flex',
+																	gap: 2,
+																	flexDirection: 'column',
+																}}
 															>
-																<DeleteIcon />
-															</IconButton>
-														</Box>
-													</TableCell>
+																<TextField
+																	name='name'
+																	label='Name'
+																	value={editValues.name}
+																	onChange={handleInputChange}
+																	fullWidth
+																	required
+																	error={!!errors.name}
+																	helperText={errors.name}
+																/>
+																<TextField
+																	name='amount'
+																	label='Amount'
+																	value={editValues.amount}
+																	onChange={handleInputChange}
+																	fullWidth
+																	required
+																	error={!!errors.amount}
+																	helperText={errors.amount}
+																/>
+																<TextField
+																	name='date'
+																	label='Date'
+																	type='date'
+																	value={editValues.date}
+																	onChange={handleInputChange}
+																	fullWidth
+																	required
+																	error={!!errors.date}
+																	helperText={errors.date}
+																/>
+																<TextField
+																	name='desc'
+																	label='Description'
+																	value={editValues.desc}
+																	onChange={handleInputChange}
+																	fullWidth
+																/>
+																<Box
+																	sx={{
+																		display: 'flex',
+																		gap: 2,
+																		justifyContent: 'flex-end',
+																	}}
+																>
+																	<IconButton
+																		disableRipple
+																		sx={{ padding: 0 }}
+																		onClick={handleSave}
+																	>
+																		<SaveIcon />
+																	</IconButton>
+																	<IconButton
+																		disableRipple
+																		sx={{ padding: 0 }}
+																		onClick={handleCancelEdit}
+																	>
+																		<CancelIcon />
+																	</IconButton>
+																</Box>
+															</Box>
+														</TableCell>
+													) : (
+														<>
+															<TableCell>{item.name}</TableCell>
+															<TableCell>${item.amount.toFixed(2)}</TableCell>
+															<TableCell>
+																{format(parseISO(item.date), 'MM/dd/yyyy')}
+															</TableCell>
+															<TableCell>{item.desc}</TableCell>
+															<TableCell>
+																<Box sx={{ display: 'flex', gap: 2 }}>
+																	<IconButton
+																		disableRipple
+																		sx={{ padding: 0 }}
+																		onClick={() => handleEdit(item.id, item)}
+																	>
+																		<EditIcon />
+																	</IconButton>
+																	<IconButton
+																		disableRipple
+																		sx={{ padding: 0 }}
+																		onClick={() => handleDelete(item.id)}
+																	>
+																		<DeleteIcon />
+																	</IconButton>
+																</Box>
+															</TableCell>
+														</>
+													)}
 												</TableRow>
 											))}
 									</TableBody>
