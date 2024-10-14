@@ -21,14 +21,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { useIncome } from '../utils/hooks';
+import { useLocalStorage } from '../utils/hooks';
 import { useEffect, useState } from 'react';
 import { format, parseISO, formatISO, parse } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { IncomeForm, Btn } from '../utils/components';
 
 export default function Income() {
-	const [income, setIncome] = useIncome();
+	const [income, setIncome] = useLocalStorage('income', []);
 	const categorySet = new Set();
 	const [categoryArray, setCategoryArray] = useState([]);
 
@@ -187,7 +187,9 @@ export default function Income() {
 								date: formatISO(parse(item.date, 'yyyy-MM-dd', new Date()), {
 									representation: 'date',
 								}),
+								amount: +item.amount,
 							};
+							console.log(updatedItem);
 							setIncome([...income, updatedItem]);
 							setShowForm(false);
 						}}

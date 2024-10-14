@@ -83,9 +83,10 @@ export default function IncomeForm({
 		// Amount validation
 
 		// try to convert amount from string to number
+		const convertedAmount = +item.amount;
 		setItem({
 			...item,
-			amount: +item.amount,
+			amount: convertedAmount,
 		});
 
 		if (!item.amount || isNaN(item.amount) || item.amount <= 0) {
