@@ -10,7 +10,7 @@ export function useModal() {
 	return [isOpen, setIsOpen];
 }
 
-export function useIncome(initialValue) {
+export function useIncome(initialValue = []) {
 	const [income, setIncome] = useState(initialValue);
 	return [income, setIncome];
 }

@@ -24,46 +24,16 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useIncome } from '../utils/hooks';
 import { useEffect, useState } from 'react';
 import { format, parseISO, formatISO, parse } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
+import { IncomeForm, Btn } from '../utils/components';
 
 export default function Income() {
-	const sampleData = [
-		{
-			id: 0,
-			name: 'Job Income',
-			amount: 1000.5,
-			date: '2024-10-24',
-			category: 'Job',
-			desc: '',
-		},
-		{
-			id: 1,
-			name: 'Rent from a roomate',
-			amount: 700,
-			date: '2024-10-24',
-			category: 'Housing',
-			desc: 'Rent from Mike',
-		},
-		{
-			id: 2,
-			name: 'Rent from a roomate',
-			amount: 700,
-			date: '2024-10-24',
-			category: 'Housing',
-			desc: 'Rent from Civ',
-		},
-		{
-			id: 3,
-			name: 'Scratch Ticket',
-			amount: 27.79,
-			date: '2024-10-24',
-			category: 'Other',
-			desc: 'Won a scratch ticket and some change on the side of the machine.',
-		},
-	];
-
-	const [income, setIncome] = useIncome(sampleData);
+	const [income, setIncome] = useIncome();
 	const categorySet = new Set();
 	const [categoryArray, setCategoryArray] = useState([]);
+
+	// state to hide/show the income form
+	const [showForm, setShowForm] = useState(false);
 
 	// Edit row state in a table
 	const [editRowId, setEditRowId] = useState(null);
@@ -116,6 +86,7 @@ export default function Income() {
 		setEditValues({
 			...income,
 			date: format(parseISO(income.date), 'yyyy-MM-dd'),
+			amount: +income.amount,
 		});
 	};
 
@@ -185,7 +156,7 @@ export default function Income() {
 			isNaN(editValues.amount) ||
 			editValues.amount <= 0
 		) {
-			newErrors.amount = 'Amount must be greater than 0';
+			newErrors.amount = 'Amount must be a number and must be greater than 0';
 			hasError = true;
 		}
 
@@ -200,7 +171,33 @@ export default function Income() {
 
 	return (
 		<Box sx={{ p: 2 }}>
-			<Typography variant='h4'>Income</Typography>
+			<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+				<Typography variant='h4'>Income</Typography>
+				<Btn onClick={() => setShowForm(true)}>Add Income</Btn>
+			</Box>
+
+			{/* Container to hold the income form */}
+			<Box>
+				{showForm ? (
+					<IncomeForm
+						onSave={(item) => {
+							const updatedItem = {
+								...item,
+								id: uuidv4(),
+								date: formatISO(parse(item.date, 'yyyy-MM-dd', new Date()), {
+									representation: 'date',
+								}),
+							};
+							setIncome([...income, updatedItem]);
+							setShowForm(false);
+						}}
+						onCancel={() => {
+							setShowForm(false);
+						}}
+						categories={categoryArray}
+					/>
+				) : null}
+			</Box>
 			{/* A grid to hold tables for each category */}
 
 			{/* Container for larger viewports */}

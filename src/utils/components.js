@@ -1,5 +1,6 @@
 // Components to add to the app for use in pages
 import Btn from '../components/Btn';
+import IncomeForm from '../components/IncomeForm';
 
 // TODO: Create components
 /**
@@ -35,5 +36,4 @@ import Btn from '../components/Btn';
  * -
  */
 
-// Global components
-export { Btn };
+export { Btn, IncomeForm };
