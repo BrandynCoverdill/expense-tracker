@@ -76,6 +76,10 @@ export default function Income() {
 		setCategoryArray([...categorySet]);
 	}, [income]);
 
+	const handleDelete = (id) => {
+		setIncome(income.filter((item) => item.id !== id));
+	};
+
 	return (
 		<Box sx={{ p: 2 }}>
 			<Typography variant='h4'>Income</Typography>
@@ -129,7 +133,11 @@ export default function Income() {
 																<IconButton disableRipple sx={{ padding: 0 }}>
 																	<EditIcon />
 																</IconButton>
-																<IconButton disableRipple sx={{ padding: 0 }}>
+																<IconButton
+																	disableRipple
+																	sx={{ padding: 0 }}
+																	onClick={() => handleDelete(income.id)}
+																>
 																	<DeleteIcon />
 																</IconButton>
 															</Box>
@@ -192,7 +200,11 @@ export default function Income() {
 															<IconButton disableRipple sx={{ padding: 0 }}>
 																<EditIcon />
 															</IconButton>
-															<IconButton disableRipple sx={{ padding: 0 }}>
+															<IconButton
+																disableRipple
+																sx={{ padding: 0 }}
+																onClick={() => handleDelete(income.id)}
+															>
 																<DeleteIcon />
 															</IconButton>
 														</Box>
