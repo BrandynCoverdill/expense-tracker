@@ -2,6 +2,7 @@
 import Btn from '../components/Btn';
 import IncomeForm from '../components/IncomeForm';
 import ExpenseForm from '../components/ExpenseForm';
+import SavingsForm from '../components/SavingsForm';
 
 // TODO: Create components
 /**
@@ -37,4 +38,4 @@ import ExpenseForm from '../components/ExpenseForm';
  * -
  */
 
-export {Btn, IncomeForm, ExpenseForm};
+export { Btn, IncomeForm, ExpenseForm, SavingsForm };
