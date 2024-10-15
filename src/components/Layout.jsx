@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useName, useModal } from '../utils/hooks';
+import { useLocalStorage, useModal } from '../utils/hooks';
 import { Link } from 'react-router-dom';
 import {
 	Box,
@@ -22,7 +22,7 @@ import { useState, useRef, useEffect } from 'react';
 export default function Layout({ children }) {
 	const [anchorElNav, setAnchorElNav] = useState(null);
 	const [anchorElUser, setAnchorElUser] = useState(null);
-	const [name, setName] = useName('User');
+	const [name, setName] = useLocalStorage('User', 'User');
 	const [openModal, setOpenModal] = useModal();
 
 	const textFieldRef = useRef(null);

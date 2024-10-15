@@ -19,15 +19,19 @@ export function useIncome(initialValue = []) {
 export function useLocalStorage(key, initialValue) {
 	const [storedValue, setStoredValue] = useState(() => {
 		const data = JSON.parse(localStorage.getItem(key)) || initialValue;
-		const convertedArray = data.map((item) => {
-			if (typeof item === 'string' && !isNaN(item)) {
-				return Number(item);
-			} else {
-				return item;
-			}
-		});
+		if (Array.isArray(data)) {
+			const convertedArray = data.map((item) => {
+				if (typeof item === 'string' && !isNaN(item)) {
+					return Number(item);
+				} else {
+					return item;
+				}
+			});
 
-		return convertedArray;
+			return convertedArray;
+		} else {
+			return data;
+		}
 	});
 
 	useEffect(() => {
