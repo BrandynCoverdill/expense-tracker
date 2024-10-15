@@ -25,6 +25,8 @@ export default function SavingsForm({
 		date: '',
 		category: category || 'Select Category',
 		desc: '',
+		tracked: false,
+		goal: 0,
 	});
 
 	// State to track the custom category input when the "Other" option is selected
