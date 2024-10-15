@@ -1,19 +1,9 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
-
-export function useName(initialName = '') {
-	const [name, setName] = useState(initialName);
-	return [name, setName];
-}
+import {useState, useEffect} from 'react';
 
 export function useModal() {
 	const [isOpen, setIsOpen] = useState(false);
 	return [isOpen, setIsOpen];
-}
-
-export function useIncome(initialValue = []) {
-	const [income, setIncome] = useState(initialValue);
-	return [income, setIncome];
 }
 
 export function useLocalStorage(key, initialValue) {

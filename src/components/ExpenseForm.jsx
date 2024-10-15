@@ -1,5 +1,5 @@
 // @ts-nocheck
-// IncomeForm component is used to create new Income items
+// ExpenseForm component is used to create new expense items
 import {
 	Box,
 	TextField,
@@ -13,7 +13,7 @@ import {Btn} from '../utils/components';
 import {useState} from 'react';
 import {format, parse, parseISO} from 'date-fns';
 
-export default function IncomeForm({
+export default function ExpenseForm({
 	category = null,
 	onSave,
 	onCancel,
@@ -217,7 +217,7 @@ export default function IncomeForm({
 						}
 					}}
 				>
-					Add Income
+					Add Expense
 				</Btn>
 				<Btn onClick={onCancel}>Cancel</Btn>
 			</Box>
