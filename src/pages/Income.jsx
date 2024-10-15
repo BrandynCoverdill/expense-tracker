@@ -32,8 +32,11 @@ export default function Income() {
 	const categorySet = new Set();
 	const [categoryArray, setCategoryArray] = useState([]);
 
-	// state to hide/show the income form
-	const [showForm, setShowForm] = useState(false);
+	// state to hide/show the main income form
+	const [showMainForm, setShowMainForm] = useState(false);
+
+	// State to hide/show income form from a table
+	const [showTableForm, setShowTableForm] = useState(false);
 
 	// Edit row state in a table
 	const [editRowId, setEditRowId] = useState(null);
@@ -178,7 +181,7 @@ export default function Income() {
 
 			{/* Container to hold the income form */}
 			<Box>
-				{showForm ? (
+				{showMainForm ? (
 					<IncomeForm
 						onSave={(item) => {
 							const updatedItem = {
@@ -189,12 +192,11 @@ export default function Income() {
 								}),
 								amount: +item.amount,
 							};
-							console.log(updatedItem);
 							setIncome([...income, updatedItem]);
-							setShowForm(false);
+							setShowMainForm(false);
 						}}
 						onCancel={() => {
-							setShowForm(false);
+							setShowMainForm(false);
 						}}
 						categories={categoryArray}
 					/>
@@ -223,6 +225,33 @@ export default function Income() {
 								<Typography>{category}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
+								<Box sx={{ mb: 2 }}>
+									<Btn onClick={() => setShowTableForm(true)}>Add Income</Btn>
+								</Box>
+								{showTableForm ? (
+									<IncomeForm
+										onCancel={() => {
+											setShowTableForm(false);
+										}}
+										onSave={(item) => {
+											const updatedItem = {
+												...item,
+												id: uuidv4(),
+												date: formatISO(
+													parse(item.date, 'yyyy-MM-dd', new Date()),
+													{
+														representation: 'date',
+													}
+												),
+												amount: +item.amount,
+											};
+											setIncome([...income, updatedItem]);
+											setShowTableForm(false);
+										}}
+										categories={categoryArray}
+										category={category}
+									/>
+								) : null}
 								<TableContainer component={Paper}>
 									<Table>
 										<TableHead>
