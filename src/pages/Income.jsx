@@ -66,6 +66,11 @@ export default function Income() {
 		setCategoryArray([...categorySet]);
 	}, [income]);
 
+	// Sort the array everytime the income state changes
+	useEffect(() => {
+		sortArray(income);
+	}, [income]);
+
 	/**
 	 * Handles the event of the user clicking the delete button in a row in the table.
 	 * Removes the income item from the income state array.
@@ -170,6 +175,14 @@ export default function Income() {
 		}
 		setErrors(newErrors);
 		return !hasError;
+	};
+
+	const sortArray = (arr) => {
+		// Sort the array by date
+		let sortedArray = income.sort((a, b) => {
+			return new Date(b.date) - new Date(a.date);
+		});
+		setIncome(sortedArray);
 	};
 
 	return (
