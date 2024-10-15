@@ -26,7 +26,7 @@ export default function ExpenseForm({
 		category: category || 'Select Category',
 		desc: '',
 		tracked: false,
-		startDate: new Date(),
+		startDate: format(new Date(), 'yyyy-MM-dd'),
 		numberOfWeeks: 1,
 	});
 
@@ -65,6 +65,7 @@ export default function ExpenseForm({
 				[name]: value,
 			});
 		}
+		console.log({ name: value });
 	};
 
 	const handleCustomCategoryChange = (e) => {

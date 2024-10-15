@@ -208,6 +208,12 @@ export default function Expenses() {
 								date: formatISO(parse(item.date, 'yyyy-MM-dd', new Date()), {
 									representation: 'date',
 								}),
+								startDate: formatISO(
+									parse(item.startDate, 'yyyy-MM-dd', new Date()),
+									{
+										representation: 'date',
+									}
+								),
 								amount: +item.amount,
 							};
 							setExpenses([...expenses, updatedItem]);
