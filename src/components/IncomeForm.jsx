@@ -9,9 +9,9 @@ import {
 	FormControl,
 	FormHelperText,
 } from '@mui/material';
-import {Btn} from '../utils/components';
-import {useState} from 'react';
-import {format, parse, parseISO} from 'date-fns';
+import { Btn } from '../utils/components';
+import { useState } from 'react';
+import { format, parse, parseISO } from 'date-fns';
 
 export default function IncomeForm({
 	category = null,
@@ -43,16 +43,16 @@ export default function IncomeForm({
 	});
 
 	const handleChange = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 
 		if (name === 'category') {
 			// Handle case where "Other" (or "other-category") is selected
 			if (value === 'other-category') {
 				setDisableCategoryTextfield(false);
-				setItem({...item, category: 'other-category'}); // Keep "other-category" selected
+				setItem({ ...item, category: 'other-category' }); // Keep "other-category" selected
 			} else {
 				setDisableCategoryTextfield(true);
-				setItem({...item, category: value}); // set selected category
+				setItem({ ...item, category: value }); // set selected category
 				setCustomCategory(''); // clear custom category input
 			}
 		} else {
@@ -65,14 +65,14 @@ export default function IncomeForm({
 	};
 
 	const handleCustomCategoryChange = (e) => {
-		const {value} = e.target;
+		const { value } = e.target;
 		setCustomCategory(value);
-		setItem({...item, category: value});
+		setItem({ ...item, category: value });
 	};
 
 	const validateForm = () => {
 		let hasError = false;
-		let newErrors = {name: '', amount: '', date: '', category: ''};
+		let newErrors = { name: '', amount: '', date: '', category: '' };
 
 		// Name validation
 		if (!item.name.trim()) {
@@ -81,14 +81,6 @@ export default function IncomeForm({
 		}
 
 		// Amount validation
-
-		// try to convert amount from string to number
-		const convertedAmount = +item.amount;
-		setItem({
-			...item,
-			amount: convertedAmount,
-		});
-
 		if (!item.amount || isNaN(item.amount) || item.amount <= 0) {
 			newErrors.amount = 'Amount must be a number that is greater than 0';
 			hasError = true;
@@ -173,7 +165,7 @@ export default function IncomeForm({
 			) : (
 				// Category is null, allow user to select or type a custom category
 				<>
-					<FormControl error={!!errors.category} sx={{gap: 2}}>
+					<FormControl error={!!errors.category} sx={{ gap: 2 }}>
 						<Select
 							value={item.category || 'Select Category'}
 							required
@@ -201,10 +193,21 @@ export default function IncomeForm({
 					</FormControl>
 				</>
 			)}
-			<Box sx={{display: 'flex', flexDirection: 'column', gap: 2, padding: 2}}>
+			<Box
+				sx={{ display: 'flex', flexDirection: 'column', gap: 2, padding: 2 }}
+			>
 				<Btn
 					onClick={() => {
 						if (validateForm()) {
+							// try to convert amount from string to number
+							const convertedAmount = +item.amount;
+							const updatedItem = {
+								name: item.name,
+								amount: convertedAmount.toFixed(2),
+								date: item.date,
+								category: item.category,
+								desc: item.desc,
+							};
 							onSave(item);
 							// Clear input
 							setItem({

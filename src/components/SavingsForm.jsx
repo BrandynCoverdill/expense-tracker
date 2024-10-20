@@ -25,8 +25,6 @@ export default function SavingsForm({
 		date: '',
 		category: category || 'Select Category',
 		desc: '',
-		tracked: false,
-		goal: 0,
 	});
 
 	// State to track the custom category input when the "Other" option is selected
@@ -83,14 +81,6 @@ export default function SavingsForm({
 		}
 
 		// Amount validation
-
-		// try to convert amount from string to number
-		const convertedAmount = +item.amount;
-		setItem({
-			...item,
-			amount: convertedAmount,
-		});
-
 		if (!item.amount || isNaN(item.amount) || item.amount <= 0) {
 			newErrors.amount = 'Amount must be a number that is greater than 0';
 			hasError = true;
@@ -140,8 +130,8 @@ export default function SavingsForm({
 			<TextField
 				name='amount'
 				label='Amount'
-				type='number'
 				value={item.amount}
+				// type='text'
 				required
 				onChange={handleChange}
 				error={!!errors.amount}
@@ -184,8 +174,8 @@ export default function SavingsForm({
 						>
 							<MenuItem value='Select Category'>Select Category</MenuItem>
 							{categories.map((category) => (
-								<MenuItem value={category} key={category}>
-									{category}
+								<MenuItem value={category.name} key={category.name}>
+									{category.name}
 								</MenuItem>
 							))}
 							<MenuItem value='other-category'>Other</MenuItem>
@@ -209,7 +199,15 @@ export default function SavingsForm({
 				<Btn
 					onClick={() => {
 						if (validateForm()) {
-							onSave(item);
+							const amount = +item.amount;
+							const updatedItem = {
+								name: item.name,
+								amount: amount.toFixed(2),
+								date: item.date,
+								category: item.category,
+								desc: item.desc,
+							};
+							onSave(updatedItem);
 							// Clear input
 							setItem({
 								name: '',

@@ -23,7 +23,7 @@ export default function App() {
 						<Route path='/income' element={<Income />} />
 						<Route path='/savings' element={<Savings />} />
 						<Route path='/expenses' element={<Expenses />} />
-						<Route path='/budgets' element={<Budgets />} />
+						<Route path='/budgeting' element={<Budgets />} />
 						<Route path='*' element={<InvalidPage />} />
 					</Routes>
 				</Layout>

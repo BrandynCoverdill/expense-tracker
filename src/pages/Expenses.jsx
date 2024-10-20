@@ -34,8 +34,8 @@ export default function Expenses() {
 	// Set to hold unique categories
 	const categorySet = new Set();
 
-	// State to hold the array of unique categories
-	const [categoryArray, setCategoryArray] = useState([]);
+	// State to hold the array of unique category objects with a tracked, name, startDate, and numWeeks property
+	const [categories, setCategories] = useLocalStorage('expensesCategories', []);
 
 	// state to hide/show the main expense form
 	const [showMainForm, setShowMainForm] = useState(false);
@@ -61,19 +61,49 @@ export default function Expenses() {
 		// Clear the Set
 		categorySet.clear();
 
-		// Clear the array
-		setCategoryArray([]);
+		// Retain the previous category objects to keep the tracked and goal properties
+		const tempOldCategories = [...categories];
+
+		// Clear the categories state
+		setCategories([]);
 
 		// Add each category to the Set
 		expenses.forEach((expense) => categorySet.add(expense.category));
 
-		// Update the array that holds the unique categories
-		setCategoryArray([...categorySet]);
-	}, [expenses]);
+		// Temp array to hold the new unique category objects
+		const tempUniqueCategories = [...categorySet];
 
-	// Sort the array everytime the expenses state changes
-	useEffect(() => {
-		sortArray(expenses);
+		// Update the categories state with the new category objects and combine the old category properties if they exist
+		tempUniqueCategories.forEach((category) => {
+			// Find the category in the previous category objects
+			const tempCategory = tempOldCategories.find(
+				(oldCategory) => oldCategory.name === category
+			);
+
+			// if the category exists in the previous category objects, update the tracked, startDate, and numWeeks properties
+			if (tempCategory) {
+				setCategories((prevCategories) => [
+					...prevCategories,
+					{
+						name: category,
+						tracked: tempCategory.tracked,
+						startDate: tempCategory.startDate,
+						numWeeks: tempCategory.numWeeks,
+					},
+				]);
+			} else {
+				// if the category does not exist in the previous category objects, add it to the categories state
+				setCategories((prevCategories) => [
+					...prevCategories,
+					{
+						name: category,
+						tracked: false,
+						startDate: format(new Date(), 'yyyy-MM-dd'),
+						numWeeks: 1,
+					},
+				]);
+			}
+		});
 	}, [expenses]);
 
 	/**
@@ -99,7 +129,6 @@ export default function Expenses() {
 		setEditValues({
 			...expense,
 			date: format(parseISO(expense.date), 'yyyy-MM-dd'),
-			amount: +expense.amount,
 		});
 	};
 
@@ -111,6 +140,9 @@ export default function Expenses() {
 	 */
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
+		if (name === 'amount' && isNaN(value)) {
+			return;
+		}
 		setEditValues({
 			...editValues,
 			[name]: value,
@@ -125,12 +157,13 @@ export default function Expenses() {
 	 */
 	const handleSave = () => {
 		if (validateFields()) {
+			const updatedAmount = +editValues.amount;
 			const updatedExpense = {
 				...editValues,
 				date: formatISO(parse(editValues.date, 'yyyy-MM-dd', new Date()), {
 					representation: 'date',
 				}),
-				amount: +editValues.amount,
+				amount: updatedAmount.toFixed(2),
 			};
 			setExpenses(
 				expenses.map((item) => (item.id === editRowId ? updatedExpense : item))
@@ -194,7 +227,7 @@ export default function Expenses() {
 		<Box sx={{ p: 2 }}>
 			<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
 				<Typography variant='h4'>Expenses</Typography>
-				<Btn onClick={() => setShowMainForm(true)}>Add Expense</Btn>
+				<Btn onClick={() => setShowMainForm(true)}>New Expense</Btn>
 			</Box>
 
 			{/* Container to hold the expense form */}
@@ -208,12 +241,6 @@ export default function Expenses() {
 								date: formatISO(parse(item.date, 'yyyy-MM-dd', new Date()), {
 									representation: 'date',
 								}),
-								startDate: formatISO(
-									parse(item.startDate, 'yyyy-MM-dd', new Date()),
-									{
-										representation: 'date',
-									}
-								),
 								amount: +item.amount,
 							};
 							setExpenses([...expenses, updatedItem]);
@@ -222,7 +249,7 @@ export default function Expenses() {
 						onCancel={() => {
 							setShowMainForm(false);
 						}}
-						categories={categoryArray}
+						categories={categories}
 					/>
 				) : null}
 			</Box>
@@ -237,20 +264,20 @@ export default function Expenses() {
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Container
-						key={category}
+						key={category.name}
 						sx={{
 							overflowX: 'auto',
 						}}
 					>
 						<Accordion>
 							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-								<Typography>{category}</Typography>
+								<Typography>{category.name}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
 								<Box sx={{ mb: 2 }}>
-									<Btn onClick={() => setShowTableForm(true)}>Add Expense</Btn>
+									<Btn onClick={() => setShowTableForm(true)}>New Expense</Btn>
 								</Box>
 								{showTableForm ? (
 									<ExpenseForm
@@ -258,6 +285,7 @@ export default function Expenses() {
 											setShowTableForm(false);
 										}}
 										onSave={(item) => {
+											const updatedAmount = +item.amount;
 											const updatedItem = {
 												...item,
 												id: uuidv4(),
@@ -267,19 +295,13 @@ export default function Expenses() {
 														representation: 'date',
 													}
 												),
-												amount: +item.amount,
-												startDate: formatISO(
-													parse(item.startDate, 'yyyy-MM-dd', new Date()),
-													{
-														representation: 'date',
-													}
-												),
+												amount: updatedAmount.toFixed(2),
 											};
 											setExpenses([...expenses, updatedItem]);
 											setShowTableForm(false);
 										}}
-										categories={categoryArray}
-										category={category}
+										categories={categories}
+										category={category.name}
 									/>
 								) : null}
 								<TableContainer component={Paper}>
@@ -295,7 +317,7 @@ export default function Expenses() {
 										</TableHead>
 										<TableBody>
 											{expenses
-												.filter((item) => item.category === category)
+												.filter((item) => item.category === category.name)
 												.map((item) => (
 													<TableRow key={item.id}>
 														{editRowId === item.id ? (
@@ -372,7 +394,7 @@ export default function Expenses() {
 														) : (
 															<>
 																<TableCell>{item.name}</TableCell>
-																<TableCell>${item.amount.toFixed(2)}</TableCell>
+																<TableCell>${item.amount}</TableCell>
 																<TableCell>
 																	{format(parseISO(item.date), 'MM/dd/yyyy')}
 																</TableCell>
@@ -417,17 +439,45 @@ export default function Expenses() {
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Accordion
-						key={category}
+						key={category.name}
 						sx={{
 							overflowX: 'auto',
 						}}
 					>
 						<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-							<Typography>{category}</Typography>
+							<Typography>{category.name}</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
+							<Box sx={{ mb: 2 }}>
+								<Btn onClick={() => setShowTableForm(true)}>New Expense</Btn>
+							</Box>
+							{showTableForm ? (
+								<ExpenseForm
+									onCancel={() => {
+										setShowTableForm(false);
+									}}
+									onSave={(item) => {
+										const updatedAmount = +item.amount;
+										const updatedItem = {
+											...item,
+											id: uuidv4(),
+											date: formatISO(
+												parse(item.date, 'yyyy-MM-dd', new Date()),
+												{
+													representation: 'date',
+												}
+											),
+											amount: updatedAmount.toFixed(2),
+										};
+										setExpenses([...expenses, updatedItem]);
+										setShowTableForm(false);
+									}}
+									categories={categories}
+									category={category.name}
+								/>
+							) : null}
 							<TableContainer component={Paper}>
 								<Table>
 									<TableHead>
@@ -441,7 +491,7 @@ export default function Expenses() {
 									</TableHead>
 									<TableBody>
 										{expenses
-											.filter((item) => item.category === category)
+											.filter((item) => item.category === category.name)
 											.map((item) => (
 												<TableRow key={item.id}>
 													{editRowId === item.id ? (
@@ -518,7 +568,7 @@ export default function Expenses() {
 													) : (
 														<>
 															<TableCell>{item.name}</TableCell>
-															<TableCell>${item.amount.toFixed(2)}</TableCell>
+															<TableCell>${item.amount}</TableCell>
 															<TableCell>
 																{format(parseISO(item.date), 'MM/dd/yyyy')}
 															</TableCell>

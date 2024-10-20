@@ -3,6 +3,8 @@ import Btn from '../components/Btn';
 import IncomeForm from '../components/IncomeForm';
 import ExpenseForm from '../components/ExpenseForm';
 import SavingsForm from '../components/SavingsForm';
+import SavingsBudgetForm from '../components/SavingsBudgetForm';
+import SpendableBudgetForm from '../components/SpendableBudgetForm';
 
 // TODO: Create components
 /**
@@ -38,4 +40,11 @@ import SavingsForm from '../components/SavingsForm';
  * -
  */
 
-export { Btn, IncomeForm, ExpenseForm, SavingsForm };
+export {
+	Btn,
+	IncomeForm,
+	ExpenseForm,
+	SavingsForm,
+	SpendableBudgetForm,
+	SavingsBudgetForm,
+};

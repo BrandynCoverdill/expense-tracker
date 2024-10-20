@@ -34,8 +34,8 @@ export default function Savings() {
 	// Set to hold unique categories
 	const categorySet = new Set();
 
-	// State to hold the array of unique categories
-	const [categoryArray, setCategoryArray] = useState([]);
+	// State to hold the array of unique category objects with a tracked, name, and goal property
+	const [categories, setCategories] = useLocalStorage('savingsCategories', []);
 
 	// state to hide/show the main savings form
 	const [showMainForm, setShowMainForm] = useState(false);
@@ -61,14 +61,47 @@ export default function Savings() {
 		// Clear the Set
 		categorySet.clear();
 
-		// Clear the array
-		setCategoryArray([]);
+		// Retain the previous category objects to keep the tracked and goal properties
+		const tempOldCategories = [...categories];
+
+		// Clear the categories state
+		setCategories([]);
 
 		// Add each category to the Set
 		savings.forEach((saving) => categorySet.add(saving.category));
 
-		// Update the array that holds the unique categories
-		setCategoryArray([...categorySet]);
+		// Temp array to hold the new unique category objects
+		const tempUniqueCategories = [...categorySet];
+
+		// Update the categories state with the new category objects and combine the tracked and goal properties with the previous category objects if they exist
+		tempUniqueCategories.forEach((category) => {
+			// Find the category in the previous category objects
+			const tempCategory = tempOldCategories.find(
+				(oldCategory) => oldCategory.name === category
+			);
+
+			// if the category exists in the previous category objects, update the tracked and goal properties
+			if (tempCategory) {
+				setCategories((prevCategories) => [
+					...prevCategories,
+					{
+						name: category,
+						tracked: tempCategory.tracked,
+						goal: tempCategory.goal,
+					},
+				]);
+			} else {
+				// if the category does not exist in the previous category objects, add it to the categories state
+				setCategories((prevCategories) => [
+					...prevCategories,
+					{
+						name: category,
+						tracked: false,
+						goal: 0,
+					},
+				]);
+			}
+		});
 	}, [savings]);
 
 	// Sort the array everytime the savings state changes
@@ -99,7 +132,6 @@ export default function Savings() {
 		setEditValues({
 			...saving,
 			date: format(parseISO(saving.date), 'yyyy-MM-dd'),
-			amount: +saving.amount,
 		});
 	};
 
@@ -111,6 +143,9 @@ export default function Savings() {
 	 */
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
+		if (name === 'amount' && isNaN(value)) {
+			return;
+		}
 		setEditValues({
 			...editValues,
 			[name]: value,
@@ -125,12 +160,13 @@ export default function Savings() {
 	 */
 	const handleSave = () => {
 		if (validateFields()) {
+			const updatedAmount = +editValues.amount;
 			const updatedSaving = {
 				...editValues,
 				date: formatISO(parse(editValues.date, 'yyyy-MM-dd', new Date()), {
 					representation: 'date',
 				}),
-				amount: +editValues.amount,
+				amount: updatedAmount.toFixed(2),
 			};
 			setSavings(
 				savings.map((item) => (item.id === editRowId ? updatedSaving : item))
@@ -194,7 +230,7 @@ export default function Savings() {
 		<Box sx={{ p: 2 }}>
 			<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
 				<Typography variant='h4'>Savings</Typography>
-				<Btn onClick={() => setShowMainForm(true)}>Add Saving</Btn>
+				<Btn onClick={() => setShowMainForm(true)}>New Saving</Btn>
 			</Box>
 
 			{/* Container to hold the savings form */}
@@ -216,7 +252,7 @@ export default function Savings() {
 						onCancel={() => {
 							setShowMainForm(false);
 						}}
-						categories={categoryArray}
+						categories={categories}
 					/>
 				) : null}
 			</Box>
@@ -231,20 +267,20 @@ export default function Savings() {
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Container
-						key={category}
+						key={category.name}
 						sx={{
 							overflowX: 'auto',
 						}}
 					>
 						<Accordion>
 							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-								<Typography>{category}</Typography>
+								<Typography>{category.name}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
 								<Box sx={{ mb: 2 }}>
-									<Btn onClick={() => setShowTableForm(true)}>Add Saving</Btn>
+									<Btn onClick={() => setShowTableForm(true)}>New Saving</Btn>
 								</Box>
 								{showTableForm ? (
 									<SavingsForm
@@ -252,6 +288,7 @@ export default function Savings() {
 											setShowTableForm(false);
 										}}
 										onSave={(item) => {
+											const updatedAmount = +item.amount;
 											const updatedItem = {
 												...item,
 												id: uuidv4(),
@@ -261,13 +298,13 @@ export default function Savings() {
 														representation: 'date',
 													}
 												),
-												amount: +item.amount,
+												amount: updatedAmount.toFixed(2),
 											};
 											setSavings([...savings, updatedItem]);
 											setShowTableForm(false);
 										}}
-										categories={categoryArray}
-										category={category}
+										categories={categories}
+										category={category.name}
 									/>
 								) : null}
 								<TableContainer component={Paper}>
@@ -283,7 +320,7 @@ export default function Savings() {
 										</TableHead>
 										<TableBody>
 											{savings
-												.filter((item) => item.category === category)
+												.filter((item) => item.category === category.name)
 												.map((item) => (
 													<TableRow key={item.id}>
 														{editRowId === item.id ? (
@@ -360,7 +397,7 @@ export default function Savings() {
 														) : (
 															<>
 																<TableCell>{item.name}</TableCell>
-																<TableCell>${item.amount.toFixed(2)}</TableCell>
+																<TableCell>${item.amount}</TableCell>
 																<TableCell>
 																	{format(parseISO(item.date), 'MM/dd/yyyy')}
 																</TableCell>
@@ -405,17 +442,45 @@ export default function Savings() {
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Accordion
-						key={category}
+						key={category.name}
 						sx={{
 							overflowX: 'auto',
 						}}
 					>
 						<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-							<Typography>{category}</Typography>
+							<Typography>{category.name}</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
+							<Box sx={{ mb: 2 }}>
+								<Btn onClick={() => setShowTableForm(true)}>New Saving</Btn>
+							</Box>
+							{showTableForm ? (
+								<SavingsForm
+									onCancel={() => {
+										setShowTableForm(false);
+									}}
+									onSave={(item) => {
+										const updatedAmount = +item.amount;
+										const updatedItem = {
+											...item,
+											id: uuidv4(),
+											date: formatISO(
+												parse(item.date, 'yyyy-MM-dd', new Date()),
+												{
+													representation: 'date',
+												}
+											),
+											amount: updatedAmount.toFixed(2),
+										};
+										setSavings([...savings, updatedItem]);
+										setShowTableForm(false);
+									}}
+									categories={categories}
+									category={category.name}
+								/>
+							) : null}
 							<TableContainer component={Paper}>
 								<Table>
 									<TableHead>
@@ -429,7 +494,7 @@ export default function Savings() {
 									</TableHead>
 									<TableBody>
 										{savings
-											.filter((item) => item.category === category)
+											.filter((item) => item.category === category.name)
 											.map((item) => (
 												<TableRow key={item.id}>
 													{editRowId === item.id ? (
@@ -506,7 +571,7 @@ export default function Savings() {
 													) : (
 														<>
 															<TableCell>{item.name}</TableCell>
-															<TableCell>${item.amount.toFixed(2)}</TableCell>
+															<TableCell>${item.amount}</TableCell>
 															<TableCell>
 																{format(parseISO(item.date), 'MM/dd/yyyy')}
 															</TableCell>

@@ -21,21 +21,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {useLocalStorage} from '../utils/hooks';
-import {useEffect, useState} from 'react';
-import {format, parseISO, formatISO, parse} from 'date-fns';
-import {v4 as uuidv4} from 'uuid';
-import {IncomeForm, Btn} from '../utils/components';
+import { useLocalStorage } from '../utils/hooks';
+import { useEffect, useState } from 'react';
+import { format, parseISO, formatISO, parse } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
+import { IncomeForm, Btn } from '../utils/components';
 
 export default function Income() {
 	// State to hold the income array
 	const [income, setIncome] = useLocalStorage('income', []);
 
+	// State to hold the unique income categories
+	const [categories, setCategories] = useLocalStorage('incomeCategories', []);
+
 	// Set to hold unique categories
 	const categorySet = new Set();
-
-	// State to hold the array of unique categories
-	const [categoryArray, setCategoryArray] = useState([]);
 
 	// state to hide/show the main income form
 	const [showMainForm, setShowMainForm] = useState(false);
@@ -62,13 +62,13 @@ export default function Income() {
 		categorySet.clear();
 
 		// Clear the array
-		setCategoryArray([]);
+		setCategories([]);
 
 		// Add each category to the Set
 		income.forEach((income) => categorySet.add(income.category));
 
 		// Update the array that holds the unique categories
-		setCategoryArray([...categorySet]);
+		setCategories([...categorySet]);
 	}, [income]);
 
 	// Sort the array everytime the income state changes
@@ -99,7 +99,6 @@ export default function Income() {
 		setEditValues({
 			...income,
 			date: format(parseISO(income.date), 'yyyy-MM-dd'),
-			amount: +income.amount,
 		});
 	};
 
@@ -110,7 +109,10 @@ export default function Income() {
 	 * @return {void} No return value.
 	 */
 	const handleInputChange = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
+		if (name === 'amount' && isNaN(value)) {
+			return;
+		}
 		setEditValues({
 			...editValues,
 			[name]: value,
@@ -125,12 +127,13 @@ export default function Income() {
 	 */
 	const handleSave = () => {
 		if (validateFields()) {
+			const updatedAmount = +editValues.amount;
 			const updatedIncome = {
 				...editValues,
 				date: formatISO(parse(editValues.date, 'yyyy-MM-dd', new Date()), {
 					representation: 'date',
 				}),
-				amount: +editValues.amount,
+				amount: updatedAmount.toFixed(2),
 			};
 			setIncome(
 				income.map((item) => (item.id === editRowId ? updatedIncome : item))
@@ -155,7 +158,7 @@ export default function Income() {
 	 */
 	const validateFields = () => {
 		let hasError = false;
-		let newErrors = {name: '', amount: '', date: ''};
+		let newErrors = { name: '', amount: '', date: '' };
 
 		// Name validation
 		if (!editValues.name.trim()) {
@@ -191,10 +194,10 @@ export default function Income() {
 	};
 
 	return (
-		<Box sx={{p: 2}}>
-			<Box sx={{display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap'}}>
+		<Box sx={{ p: 2 }}>
+			<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
 				<Typography variant='h4'>Income</Typography>
-				<Btn onClick={() => setShowMainForm(true)}>Add Income</Btn>
+				<Btn onClick={() => setShowMainForm(true)}>New Income</Btn>
 			</Box>
 
 			{/* Container to hold the income form */}
@@ -216,7 +219,7 @@ export default function Income() {
 						onCancel={() => {
 							setShowMainForm(false);
 						}}
-						categories={categoryArray}
+						categories={categories}
 					/>
 				) : null}
 			</Box>
@@ -225,13 +228,13 @@ export default function Income() {
 			{/* Container for larger viewports */}
 			<Box
 				sx={{
-					display: {xs: 'none', md: 'grid'},
+					display: { xs: 'none', md: 'grid' },
 					gridTemplateColumns: '1fr 1fr',
 					gap: 2,
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Container
 						key={category}
 						sx={{
@@ -243,8 +246,8 @@ export default function Income() {
 								<Typography>{category}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
-								<Box sx={{mb: 2}}>
-									<Btn onClick={() => setShowTableForm(true)}>Add Income</Btn>
+								<Box sx={{ mb: 2 }}>
+									<Btn onClick={() => setShowTableForm(true)}>New Income</Btn>
 								</Box>
 								{showTableForm ? (
 									<IncomeForm
@@ -252,6 +255,7 @@ export default function Income() {
 											setShowTableForm(false);
 										}}
 										onSave={(item) => {
+											const updatedAmount = +item.amount;
 											const updatedItem = {
 												...item,
 												id: uuidv4(),
@@ -261,12 +265,12 @@ export default function Income() {
 														representation: 'date',
 													}
 												),
-												amount: +item.amount,
+												amount: updatedAmount.toFixed(2),
 											};
 											setIncome([...income, updatedItem]);
 											setShowTableForm(false);
 										}}
-										categories={categoryArray}
+										categories={categories}
 										category={category}
 									/>
 								) : null}
@@ -287,7 +291,7 @@ export default function Income() {
 												.map((item) => (
 													<TableRow key={item.id}>
 														{editRowId === item.id ? (
-															<TableCell colSpan={5} sx={{padding: '2 1'}}>
+															<TableCell colSpan={5} sx={{ padding: '2 1' }}>
 																<Box
 																	sx={{
 																		display: 'flex',
@@ -342,14 +346,14 @@ export default function Income() {
 																	>
 																		<IconButton
 																			disableRipple
-																			sx={{padding: 0}}
+																			sx={{ padding: 0 }}
 																			onClick={handleSave}
 																		>
 																			<SaveIcon />
 																		</IconButton>
 																		<IconButton
 																			disableRipple
-																			sx={{padding: 0}}
+																			sx={{ padding: 0 }}
 																			onClick={handleCancelEdit}
 																		>
 																			<CancelIcon />
@@ -360,23 +364,23 @@ export default function Income() {
 														) : (
 															<>
 																<TableCell>{item.name}</TableCell>
-																<TableCell>${item.amount.toFixed(2)}</TableCell>
+																<TableCell>${item.amount}</TableCell>
 																<TableCell>
 																	{format(parseISO(item.date), 'MM/dd/yyyy')}
 																</TableCell>
 																<TableCell>{item.desc}</TableCell>
 																<TableCell>
-																	<Box sx={{display: 'flex', gap: 2}}>
+																	<Box sx={{ display: 'flex', gap: 2 }}>
 																		<IconButton
 																			disableRipple
-																			sx={{padding: 0}}
+																			sx={{ padding: 0 }}
 																			onClick={() => handleEdit(item.id, item)}
 																		>
 																			<EditIcon />
 																		</IconButton>
 																		<IconButton
 																			disableRipple
-																			sx={{padding: 0}}
+																			sx={{ padding: 0 }}
 																			onClick={() => handleDelete(item.id)}
 																		>
 																			<DeleteIcon />
@@ -399,13 +403,13 @@ export default function Income() {
 			{/* Container for smaller viewports */}
 			<Box
 				sx={{
-					display: {xs: 'grid', md: 'none'},
+					display: { xs: 'grid', md: 'none' },
 					gridTemplateColumns: '1fr',
 					gap: 2,
 				}}
 			>
 				{/* Accordion for each different category that holds a table for each item in that category */}
-				{categoryArray.map((category) => (
+				{categories.map((category) => (
 					<Accordion
 						key={category}
 						sx={{
@@ -416,6 +420,34 @@ export default function Income() {
 							<Typography>{category}</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
+							<Box sx={{ mb: 2 }}>
+								<Btn onClick={() => setShowTableForm(true)}>New Income</Btn>
+							</Box>
+							{showTableForm ? (
+								<IncomeForm
+									onCancel={() => {
+										setShowTableForm(false);
+									}}
+									onSave={(item) => {
+										const updatedAmount = +item.amount;
+										const updatedItem = {
+											...item,
+											id: uuidv4(),
+											date: formatISO(
+												parse(item.date, 'yyyy-MM-dd', new Date()),
+												{
+													representation: 'date',
+												}
+											),
+											amount: updatedAmount.toFixed(2),
+										};
+										setIncome([...income, updatedItem]);
+										setShowTableForm(false);
+									}}
+									categories={categories}
+									category={category}
+								/>
+							) : null}
 							<TableContainer component={Paper}>
 								<Table>
 									<TableHead>
@@ -433,7 +465,7 @@ export default function Income() {
 											.map((item) => (
 												<TableRow key={item.id}>
 													{editRowId === item.id ? (
-														<TableCell colSpan={5} sx={{padding: '2 1'}}>
+														<TableCell colSpan={5} sx={{ padding: '2 1' }}>
 															<Box
 																sx={{
 																	display: 'flex',
@@ -488,14 +520,14 @@ export default function Income() {
 																>
 																	<IconButton
 																		disableRipple
-																		sx={{padding: 0}}
+																		sx={{ padding: 0 }}
 																		onClick={handleSave}
 																	>
 																		<SaveIcon />
 																	</IconButton>
 																	<IconButton
 																		disableRipple
-																		sx={{padding: 0}}
+																		sx={{ padding: 0 }}
 																		onClick={handleCancelEdit}
 																	>
 																		<CancelIcon />
@@ -506,23 +538,23 @@ export default function Income() {
 													) : (
 														<>
 															<TableCell>{item.name}</TableCell>
-															<TableCell>${item.amount.toFixed(2)}</TableCell>
+															<TableCell>${item.amount}</TableCell>
 															<TableCell>
 																{format(parseISO(item.date), 'MM/dd/yyyy')}
 															</TableCell>
 															<TableCell>{item.desc}</TableCell>
 															<TableCell>
-																<Box sx={{display: 'flex', gap: 2}}>
+																<Box sx={{ display: 'flex', gap: 2 }}>
 																	<IconButton
 																		disableRipple
-																		sx={{padding: 0}}
+																		sx={{ padding: 0 }}
 																		onClick={() => handleEdit(item.id, item)}
 																	>
 																		<EditIcon />
 																	</IconButton>
 																	<IconButton
 																		disableRipple
-																		sx={{padding: 0}}
+																		sx={{ padding: 0 }}
 																		onClick={() => handleDelete(item.id)}
 																	>
 																		<DeleteIcon />

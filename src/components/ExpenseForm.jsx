@@ -25,9 +25,6 @@ export default function ExpenseForm({
 		date: '',
 		category: category || 'Select Category',
 		desc: '',
-		tracked: false,
-		startDate: format(new Date(), 'yyyy-MM-dd'),
-		numberOfWeeks: 1,
 	});
 
 	// State to track the custom category input when the "Other" option is selected
@@ -65,7 +62,6 @@ export default function ExpenseForm({
 				[name]: value,
 			});
 		}
-		console.log({ name: value });
 	};
 
 	const handleCustomCategoryChange = (e) => {
@@ -85,14 +81,6 @@ export default function ExpenseForm({
 		}
 
 		// Amount validation
-
-		// try to convert amount from string to number
-		const convertedAmount = +item.amount;
-		setItem({
-			...item,
-			amount: convertedAmount,
-		});
-
 		if (!item.amount || isNaN(item.amount) || item.amount <= 0) {
 			newErrors.amount = 'Amount must be a number that is greater than 0';
 			hasError = true;
@@ -186,8 +174,8 @@ export default function ExpenseForm({
 						>
 							<MenuItem value='Select Category'>Select Category</MenuItem>
 							{categories.map((category) => (
-								<MenuItem value={category} key={category}>
-									{category}
+								<MenuItem value={category.name} key={category}>
+									{category.name}
 								</MenuItem>
 							))}
 							<MenuItem value='other-category'>Other</MenuItem>
@@ -211,6 +199,15 @@ export default function ExpenseForm({
 				<Btn
 					onClick={() => {
 						if (validateForm()) {
+							const convertedAmount = +item.amount;
+							const updatedItem = {
+								name: item.name,
+								amount: convertedAmount.toFixed(2),
+								date: item.date,
+								category: item.category,
+								desc: item.desc,
+							};
+							setItem(updatedItem);
 							onSave(item);
 							// Clear input
 							setItem({
