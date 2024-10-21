@@ -93,7 +93,7 @@ export default function Budgets() {
 			startingValue
 		);
 
-		return total;
+		return total.toFixed(2);
 	};
 
 	const findPercentageSaved = (category) => {
