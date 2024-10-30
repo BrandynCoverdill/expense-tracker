@@ -17,7 +17,7 @@ export default function SpendableBudgetForm({onClick, closeForm}) {
 
 	// State that holds the information the user types to create a Expense Budget
 	const [budget, setBudget] = useState({
-		category: 'select-category',
+		name: 'select-category',
 		allowance: 0,
 		startDate: '',
 		numWeeks: 0,
@@ -25,7 +25,7 @@ export default function SpendableBudgetForm({onClick, closeForm}) {
 
 	// State to hold the errors upon validation
 	const [errors, setErrors] = useState({
-		category: '',
+		name: '',
 		allowance: '',
 		startDate: '',
 		numWeeks: '',
@@ -51,16 +51,16 @@ export default function SpendableBudgetForm({onClick, closeForm}) {
 
 	const validate = () => {
 		const newErrors = {
-			category: '',
+			name: '',
 			allowance: '',
 			startDate: '',
 			numWeeks: '',
 		};
 		let hasError = false;
 
-		// category
-		if (!budget.category || budget.category === 'select-category') {
-			newErrors.category = 'Please select a category';
+		// name
+		if (!budget.name || budget.name === 'select-category') {
+			newErrors.name = 'Please select a category';
 			hasError = true;
 		}
 
@@ -118,17 +118,17 @@ export default function SpendableBudgetForm({onClick, closeForm}) {
 						// Show the form to create a spendable budget
 						<Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
 							<TextField
-								name='category'
-								value={budget.category}
+								name='name'
+								value={budget.name}
 								label='Category'
 								required
 								select // renders Select component
 								onChange={(e) => handleChange(e)}
 								sx={{width: '100%'}}
-								error={!!errors.category}
-								helperText={errors.category}
+								error={!!errors.name}
+								helperText={errors.name}
 							>
-								<MenuItem value={budget.category}>Select Category</MenuItem>
+								<MenuItem value={budget.name}>Select Category</MenuItem>
 								{categories.map((cat) => (
 									<MenuItem key={cat.name} value={cat.name}>
 										{cat.name}

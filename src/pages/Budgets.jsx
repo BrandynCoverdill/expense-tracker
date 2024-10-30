@@ -80,15 +80,15 @@ export default function Budgets() {
 
 		tempCategories.forEach((cat) => {
 			if (cat.name === category.name) {
-				let updatedAllowance = +expenseEditValues.allowance;
+				let updatedAllowance = +category.allowance;
 				cat.allowance = updatedAllowance.toFixed(2);
-				cat.startDate = expenseEditValues.startDate;
-				cat.numWeeks = +expenseEditValues.numWeeks;
+				cat.startDate = category.startDate;
+				cat.numWeeks = +category.numWeeks;
 				cat.tracked = true;
 			}
 		});
 
-		setExpenseCategories([...tempCategories]);
+		setExpenseCategories(tempCategories);
 		resetExpenseEditValues();
 		setShowBudgetForm('');
 	};
