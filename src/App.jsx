@@ -1,6 +1,8 @@
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import {CssBaseline, ThemeProvider, createTheme} from '@mui/material';
+import {useEffect} from 'react';
+import {useLocalStorage} from './utils/hooks';
 import Layout from './components/Layout';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Income from './pages/Income';
 import Savings from './pages/Savings';
@@ -13,6 +15,30 @@ import 'normalize.css';
 const theme = createTheme({});
 
 export default function App() {
+	// Load data from local storage
+	useEffect(() => {
+		const keysToLoad = [
+			'User',
+			'income',
+			'incomeCategories',
+			'savings',
+			'savingsCategories',
+			'expenses',
+			'expenseCategories',
+		];
+		keysToLoad.forEach((key) => {
+			if (key === 'User') {
+				const name = localStorage.getItem(key) || 'User';
+				if (name) {
+					localStorage.setItem(key, name);
+				}
+			} else {
+				if (!localStorage.getItem(key)) {
+					localStorage.setItem(key, JSON.stringify([]));
+				}
+			}
+		});
+	});
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
