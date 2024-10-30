@@ -7,14 +7,11 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import {
-	Btn,
-	SpendableBudgetForm,
-	SavingsBudgetForm,
-} from '../utils/components';
-import { useState } from 'react';
-import { useLocalStorage } from '../utils/hooks';
+import {Btn, SpendableBudgetForm, SavingsBudgetForm} from '../utils/components';
+import {useState} from 'react';
+import {useLocalStorage} from '../utils/hooks';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import {format, parse, addWeeks, subWeeks} from 'date-fns';
 
 export default function Budgets() {
 	// State to show/hide forms for creating new budgets
@@ -78,21 +75,20 @@ export default function Budgets() {
 		});
 	};
 
-	// TODO: Fix state not updating when editing
-	const handleExpenseBudgetSubmit = (budget) => {
+	const handleExpenseBudgetSubmit = (category) => {
 		const tempCategories = [...expenseCategories];
 
-		tempCategories.forEach((category) => {
-			if (category.name === budget.name) {
-				let updatedAllowance = +budget.allowance;
-				category.allowance = updatedAllowance.toFixed(2);
-				category.startDate = budget.startDate;
-				category.numWeeks = +budget.numWeeks;
-				category.tracked = true;
+		tempCategories.forEach((cat) => {
+			if (cat.name === category.name) {
+				let updatedAllowance = +expenseEditValues.allowance;
+				cat.allowance = updatedAllowance.toFixed(2);
+				cat.startDate = expenseEditValues.startDate;
+				cat.numWeeks = +expenseEditValues.numWeeks;
+				cat.tracked = true;
 			}
 		});
 
-		setExpenseCategories(tempCategories);
+		setExpenseCategories([...tempCategories]);
 		resetExpenseEditValues();
 		setShowBudgetForm('');
 	};
@@ -171,7 +167,7 @@ export default function Budgets() {
 	};
 
 	const handleSavingInputChange = (e) => {
-		const { name, value } = e.target;
+		const {name, value} = e.target;
 		if (name === 'goal' && isNaN(value)) {
 			return;
 		}
@@ -181,7 +177,7 @@ export default function Budgets() {
 	};
 
 	const handleExpenseBudgetChange = (e) => {
-		const { name, value } = e.target;
+		const {name, value} = e.target;
 		if (name === 'allowance' && isNaN(value)) {
 			return;
 		}
@@ -266,9 +262,48 @@ export default function Budgets() {
 		setSavingEditId(null);
 	};
 
+	const findRenewalDate = (startDate, numWeeks) => {
+		// Hold today's date to compare
+		const today = new Date();
+
+		// mutable variable
+		let tempDate = parse(startDate, 'yyyy-MM-dd', new Date());
+
+		// While the tempDate does not go over today's date
+		while (tempDate < today) {
+			const newDate = addWeeks(tempDate, numWeeks);
+			tempDate = newDate;
+		}
+		return format(tempDate, 'yyyy-MM-dd');
+	};
+
+	const findRemainingAllowance = (category) => {
+		// get renewal date
+		const renewalDate = parse(
+			findRenewalDate(category.startDate, category.numWeeks),
+			'yyyy-MM-dd',
+			new Date()
+		);
+		// get previous renewal date if there is one
+		const previousRenewalDate = subWeeks(renewalDate, category.numWeeks);
+
+		// find the total expenses from that date range
+		const filteredData = expenses.filter(
+			(expense) =>
+				parse(expense.date, 'yyyy-MM-dd', new Date()) >= previousRenewalDate
+		);
+		const total = filteredData.reduce(
+			(total, expense) => total + expense.amount,
+			0
+		);
+
+		// return that total minus the allowance
+		return (category.allowance - total).toFixed(2);
+	};
+
 	return (
-		<Box sx={{ p: 2 }}>
-			<Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+		<Box sx={{p: 2}}>
+			<Box sx={{display: 'flex', gap: 2, alignItems: 'center'}}>
 				<Typography variant='h4'>Budgeting</Typography>
 
 				{/* Buttons to show the forms for creating the two kinds of budgets */}
@@ -284,8 +319,8 @@ export default function Budgets() {
 			{renderForm()}
 
 			{/* Saving Budget Tables */}
-			<Box sx={{ m: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-				<Typography variant='h5' sx={{ borderBottom: '1px solid black' }}>
+			<Box sx={{m: 2, display: 'flex', flexDirection: 'column', gap: 2}}>
+				<Typography variant='h5' sx={{borderBottom: '1px solid black'}}>
 					Saving Budgets
 				</Typography>
 
@@ -300,9 +335,7 @@ export default function Budgets() {
 							<AccordionDetails>
 								{savingEditId === category.name ? (
 									// Show edit details
-									<Box
-										sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
-									>
+									<Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
 										<TextField
 											name='goal'
 											value={savingEditValues.goal}
@@ -334,13 +367,11 @@ export default function Budgets() {
 									<>
 										<Typography>
 											Saving Goal:{' '}
-											<span style={{ fontWeight: 'bold' }}>
-												${category.goal}
-											</span>
+											<span style={{fontWeight: 'bold'}}>${category.goal}</span>
 										</Typography>
 										<Typography>
 											Currently Saved:{' '}
-											<span style={{ fontWeight: 'bold' }}>
+											<span style={{fontWeight: 'bold'}}>
 												${findTotalSaved(category)}
 											</span>
 										</Typography>
@@ -375,8 +406,8 @@ export default function Budgets() {
 				)}
 			</Box>
 			{/* Spendable Budget Tables */}
-			<Box sx={{ m: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-				<Typography variant='h5' sx={{ borderBottom: '1px solid black' }}>
+			<Box sx={{m: 2, display: 'flex', flexDirection: 'column', gap: 2}}>
+				<Typography variant='h5' sx={{borderBottom: '1px solid black'}}>
 					Spendable Budgets
 				</Typography>
 
@@ -391,13 +422,11 @@ export default function Budgets() {
 							<AccordionDetails>
 								{expenseEditId === category.name ? (
 									// show edit details
-									<Box
-										sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
-									>
+									<Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
 										<TextField
 											name='allowance'
 											type='number'
-											sx={{ width: '100%' }}
+											sx={{width: '100%'}}
 											label='Spendable Allowance'
 											required
 											onChange={(e) => handleExpenseBudgetChange(e)}
@@ -406,7 +435,7 @@ export default function Budgets() {
 										></TextField>
 										<TextField
 											type='date'
-											sx={{ width: '100%' }}
+											sx={{width: '100%'}}
 											label='Date to start budget'
 											name='startDate'
 											required
@@ -416,7 +445,7 @@ export default function Budgets() {
 										></TextField>
 										<TextField
 											type='number'
-											sx={{ width: '100%' }}
+											sx={{width: '100%'}}
 											label='Number of weeks to budget'
 											name='numWeeks'
 											required
@@ -425,7 +454,7 @@ export default function Budgets() {
 											helperText={expenseEditErrors.numWeeks}
 										></TextField>
 										<Box
-											sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+											sx={{display: 'flex', flexDirection: 'column', gap: 2}}
 										>
 											<Btn
 												onClick={() => {
@@ -447,23 +476,39 @@ export default function Budgets() {
 									<>
 										<Typography>
 											Remaining Allowance:{' '}
-											<span style={{ fontWeight: 'bold' }}>${'todo'}</span>
+											{findRemainingAllowance(category) < 0 ? (
+												<span style={{fontWeight: 'bold', color: '#ff0000'}}>
+													${findRemainingAllowance(category)}
+												</span>
+											) : (
+												<span style={{fontWeight: 'bold', color: '#00bb00'}}>
+													${findRemainingAllowance(category)}
+												</span>
+											)}
+										</Typography>
+										<Typography>
+											Set Allowance:{' '}
+											<span style={{fontWeight: 'bold'}}>
+												${category.allowance}
+											</span>
+										</Typography>
+										<Typography>
+											Renews on:{' '}
+											<span style={{fontWeight: 'bold'}}>
+												{findRenewalDate(category.startDate, category.numWeeks)}
+											</span>
 										</Typography>
 										<Typography>
 											Start Date:{' '}
-											<span style={{ fontWeight: 'bold' }}>
+											<span style={{fontWeight: 'bold'}}>
 												{category.startDate}
 											</span>
 										</Typography>
 										<Typography>
 											Number of weeks:{' '}
-											<span style={{ fontWeight: 'bold' }}>
+											<span style={{fontWeight: 'bold'}}>
 												{category.numWeeks}
 											</span>
-										</Typography>
-										<Typography>
-											Renews on:{' '}
-											<span style={{ fontWeight: 'bold' }}>{'todo'}</span>
 										</Typography>
 										<Box
 											sx={{

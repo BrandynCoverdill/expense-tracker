@@ -21,11 +21,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { useLocalStorage } from '../utils/hooks';
-import { useEffect, useState } from 'react';
-import { format, parseISO, formatISO, parse } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
-import { ExpenseForm, Btn } from '../utils/components';
+import {useLocalStorage} from '../utils/hooks';
+import {useEffect, useState} from 'react';
+import {format, parseISO, formatISO, parse} from 'date-fns';
+import {v4 as uuidv4} from 'uuid';
+import {ExpenseForm, Btn} from '../utils/components';
 
 export default function Expenses() {
 	// State to hold the expenses array
@@ -141,7 +141,7 @@ export default function Expenses() {
 	 * @return {void} No return value.
 	 */
 	const handleInputChange = (e) => {
-		const { name, value } = e.target;
+		const {name, value} = e.target;
 		if (name === 'amount' && isNaN(value)) {
 			return;
 		}
@@ -190,7 +190,7 @@ export default function Expenses() {
 	 */
 	const validateFields = () => {
 		let hasError = false;
-		let newErrors = { name: '', amount: '', date: '' };
+		let newErrors = {name: '', amount: '', date: ''};
 
 		// Name validation
 		if (!editValues.name.trim()) {
@@ -226,8 +226,8 @@ export default function Expenses() {
 	};
 
 	return (
-		<Box sx={{ p: 2 }}>
-			<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+		<Box sx={{p: 2}}>
+			<Box sx={{display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap'}}>
 				<Typography variant='h4'>Expenses</Typography>
 				<Btn onClick={() => setShowMainForm(true)}>New Expense</Btn>
 			</Box>
@@ -260,7 +260,7 @@ export default function Expenses() {
 			{/* Container for larger viewports */}
 			<Box
 				sx={{
-					display: { xs: 'none', md: 'grid' },
+					display: {xs: 'none', md: 'grid'},
 					gridTemplateColumns: '1fr 1fr',
 					gap: 2,
 				}}
@@ -278,7 +278,7 @@ export default function Expenses() {
 								<Typography>{category.name}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
-								<Box sx={{ mb: 2 }}>
+								<Box sx={{mb: 2}}>
 									<Btn onClick={() => setShowTableForm(true)}>New Expense</Btn>
 								</Box>
 								{showTableForm ? (
@@ -323,7 +323,7 @@ export default function Expenses() {
 												.map((item) => (
 													<TableRow key={item.id}>
 														{editRowId === item.id ? (
-															<TableCell colSpan={5} sx={{ padding: '2 1' }}>
+															<TableCell colSpan={5} sx={{padding: '2 1'}}>
 																<Box
 																	sx={{
 																		display: 'flex',
@@ -378,14 +378,14 @@ export default function Expenses() {
 																	>
 																		<IconButton
 																			disableRipple
-																			sx={{ padding: 0 }}
+																			sx={{padding: 0}}
 																			onClick={handleSave}
 																		>
 																			<SaveIcon />
 																		</IconButton>
 																		<IconButton
 																			disableRipple
-																			sx={{ padding: 0 }}
+																			sx={{padding: 0}}
 																			onClick={handleCancelEdit}
 																		>
 																			<CancelIcon />
@@ -402,17 +402,17 @@ export default function Expenses() {
 																</TableCell>
 																<TableCell>{item.desc}</TableCell>
 																<TableCell>
-																	<Box sx={{ display: 'flex', gap: 2 }}>
+																	<Box sx={{display: 'flex', gap: 2}}>
 																		<IconButton
 																			disableRipple
-																			sx={{ padding: 0 }}
+																			sx={{padding: 0}}
 																			onClick={() => handleEdit(item.id, item)}
 																		>
 																			<EditIcon />
 																		</IconButton>
 																		<IconButton
 																			disableRipple
-																			sx={{ padding: 0 }}
+																			sx={{padding: 0}}
 																			onClick={() => handleDelete(item.id)}
 																		>
 																			<DeleteIcon />
@@ -435,7 +435,7 @@ export default function Expenses() {
 			{/* Container for smaller viewports */}
 			<Box
 				sx={{
-					display: { xs: 'grid', md: 'none' },
+					display: {xs: 'grid', md: 'none'},
 					gridTemplateColumns: '1fr',
 					gap: 2,
 				}}
@@ -452,7 +452,7 @@ export default function Expenses() {
 							<Typography>{category.name}</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
-							<Box sx={{ mb: 2 }}>
+							<Box sx={{mb: 2}}>
 								<Btn onClick={() => setShowTableForm(true)}>New Expense</Btn>
 							</Box>
 							{showTableForm ? (
@@ -497,7 +497,7 @@ export default function Expenses() {
 											.map((item) => (
 												<TableRow key={item.id}>
 													{editRowId === item.id ? (
-														<TableCell colSpan={5} sx={{ padding: '2 1' }}>
+														<TableCell colSpan={5} sx={{padding: '2 1'}}>
 															<Box
 																sx={{
 																	display: 'flex',
@@ -552,14 +552,14 @@ export default function Expenses() {
 																>
 																	<IconButton
 																		disableRipple
-																		sx={{ padding: 0 }}
+																		sx={{padding: 0}}
 																		onClick={handleSave}
 																	>
 																		<SaveIcon />
 																	</IconButton>
 																	<IconButton
 																		disableRipple
-																		sx={{ padding: 0 }}
+																		sx={{padding: 0}}
 																		onClick={handleCancelEdit}
 																	>
 																		<CancelIcon />
@@ -576,17 +576,17 @@ export default function Expenses() {
 															</TableCell>
 															<TableCell>{item.desc}</TableCell>
 															<TableCell>
-																<Box sx={{ display: 'flex', gap: 2 }}>
+																<Box sx={{display: 'flex', gap: 2}}>
 																	<IconButton
 																		disableRipple
-																		sx={{ padding: 0 }}
+																		sx={{padding: 0}}
 																		onClick={() => handleEdit(item.id, item)}
 																	>
 																		<EditIcon />
 																	</IconButton>
 																	<IconButton
 																		disableRipple
-																		sx={{ padding: 0 }}
+																		sx={{padding: 0}}
 																		onClick={() => handleDelete(item.id)}
 																	>
 																		<DeleteIcon />

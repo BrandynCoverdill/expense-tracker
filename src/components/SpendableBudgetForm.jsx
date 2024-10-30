@@ -6,12 +6,12 @@ import {
 	TextField,
 	Paper,
 } from '@mui/material';
-import { useLocalStorage } from '../utils/hooks';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { Btn } from '../utils/components';
+import {useLocalStorage} from '../utils/hooks';
+import {Link} from 'react-router-dom';
+import {useState} from 'react';
+import {Btn} from '../utils/components';
 
-export default function SpendableBudgetForm({ onClick, closeForm }) {
+export default function SpendableBudgetForm({onClick, closeForm}) {
 	// State that holds categories for expenses
 	const [categories, setCategories] = useLocalStorage('expensesCategories', []);
 
@@ -32,13 +32,13 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 	});
 
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const {name, value} = e.target;
 		if (name === 'allowance') {
 			// If the field saves a number, save it as a number
-			setBudget({ ...budget, [name]: +value });
+			setBudget({...budget, [name]: +value});
 		} else {
 			// for all other fields
-			setBudget({ ...budget, [name]: value });
+			setBudget({...budget, [name]: value});
 		}
 	};
 
@@ -93,14 +93,14 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 	};
 
 	return (
-		<Box sx={{ m: 2 }} component={Paper} elevation={3}>
+		<Box sx={{m: 2}} component={Paper} elevation={3}>
 			<Container
 				sx={{
 					border: '1px solid black',
 					p: 1,
 				}}
 			>
-				<Typography variant='h6' sx={{ textAlign: 'center' }}>
+				<Typography variant='h6' sx={{textAlign: 'center'}}>
 					Create New Spendable Budget
 				</Typography>
 				<Box>
@@ -116,7 +116,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 						</>
 					) : (
 						// Show the form to create a spendable budget
-						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+						<Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
 							<TextField
 								name='category'
 								value={budget.category}
@@ -124,7 +124,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 								required
 								select // renders Select component
 								onChange={(e) => handleChange(e)}
-								sx={{ width: '100%' }}
+								sx={{width: '100%'}}
 								error={!!errors.category}
 								helperText={errors.category}
 							>
@@ -137,7 +137,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 							</TextField>
 							<TextField
 								type='number'
-								sx={{ width: '100%' }}
+								sx={{width: '100%'}}
 								label='Spendable Allowance'
 								name='allowance'
 								required
@@ -147,7 +147,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 							></TextField>
 							<TextField
 								type='date'
-								sx={{ width: '100%' }}
+								sx={{width: '100%'}}
 								label='Date to start budget'
 								name='startDate'
 								required
@@ -157,7 +157,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 							></TextField>
 							<TextField
 								type='number'
-								sx={{ width: '100%' }}
+								sx={{width: '100%'}}
 								label='Number of weeks to budget'
 								name='numWeeks'
 								required
@@ -165,7 +165,7 @@ export default function SpendableBudgetForm({ onClick, closeForm }) {
 								error={!!errors.numWeeks}
 								helperText={errors.numWeeks}
 							></TextField>
-							<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+							<Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
 								<Btn onClick={handleClick}>Create Budget</Btn>
 								<Btn onClick={closeForm}>Cancel</Btn>
 							</Box>
