@@ -415,7 +415,13 @@ export default function Budgets() {
 					if there are some being tracked, show each as an accordion. */}
 				{expenseCategories.map((category) =>
 					category.tracked ? (
-						<Accordion key={category.name}>
+						<Accordion
+							key={category.name}
+							sx={{
+								backgroundColor:
+									findRemainingAllowance(category) > 0 ? '#e0ffe0' : '#fff0f0',
+							}}
+						>
 							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
 								{category.name}
 							</AccordionSummary>
@@ -481,7 +487,7 @@ export default function Budgets() {
 													${findRemainingAllowance(category)}
 												</span>
 											) : (
-												<span style={{fontWeight: 'bold', color: '#00bb00'}}>
+												<span style={{fontWeight: 'bold', color: '#00aa00'}}>
 													${findRemainingAllowance(category)}
 												</span>
 											)}
