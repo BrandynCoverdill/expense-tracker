@@ -12,7 +12,7 @@ import {
 	SpendableBudgetForm,
 	SavingsBudgetForm,
 } from '../utils/components';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocalStorage } from '../utils/hooks';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -43,8 +43,16 @@ export default function Budgets() {
 
 	// State to edit Expenese
 	const [expenseEditId, setExpenseEditId] = useState(null);
-	const [expenseEditValues, setExpenseEditValues] = useState({});
-	const [expenseEditErrors, setExpenseEditErrors] = useState({});
+	const [expenseEditValues, setExpenseEditValues] = useState({
+		allowance: '',
+		startDate: '',
+		numWeeks: '',
+	});
+	const [expenseEditErrors, setExpenseEditErrors] = useState({
+		allowance: '',
+		startDate: '',
+		numWeeks: '',
+	});
 
 	const handleShowForm = (form) => {
 		setShowBudgetForm(form);
@@ -57,10 +65,44 @@ export default function Budgets() {
 				category.goal = budget.goal;
 				category.tracked = true;
 				setSavingCategories(tempCategories);
+				resetSavingEditValues();
 			}
 		});
 
 		setShowBudgetForm('');
+	};
+
+	const resetSavingEditValues = () => {
+		setSavingEditValues({
+			goal: '',
+		});
+	};
+
+	// TODO: Fix state not updating when editing
+	const handleExpenseBudgetSubmit = (budget) => {
+		const tempCategories = [...expenseCategories];
+
+		tempCategories.forEach((category) => {
+			if (category.name === budget.name) {
+				let updatedAllowance = +budget.allowance;
+				category.allowance = updatedAllowance.toFixed(2);
+				category.startDate = budget.startDate;
+				category.numWeeks = +budget.numWeeks;
+				category.tracked = true;
+			}
+		});
+
+		setExpenseCategories(tempCategories);
+		resetExpenseEditValues();
+		setShowBudgetForm('');
+	};
+
+	const resetExpenseEditValues = () => {
+		setExpenseEditValues({
+			allowance: '',
+			startDate: '',
+			numWeeks: '',
+		});
 	};
 
 	const renderForm = () => {
@@ -75,7 +117,12 @@ export default function Budgets() {
 					/>
 				);
 			case 'spendable-budget':
-				return <SpendableBudgetForm />;
+				return (
+					<SpendableBudgetForm
+						onClick={(budget) => handleExpenseBudgetSubmit(budget)}
+						closeForm={() => setShowBudgetForm('')}
+					/>
+				);
 			default:
 				return null;
 		}
@@ -100,13 +147,25 @@ export default function Budgets() {
 		return ((findTotalSaved(category) / category.goal) * 100).toFixed(2);
 	};
 
-	const removeBudget = (category) => {
+	const removeSavingBudget = (category) => {
 		const tempCategories = [...savingCategories];
 		tempCategories.find((cat) => {
 			if (cat.name === category.name) {
 				cat.goal = 0;
 				cat.tracked = false;
 				setSavingCategories(tempCategories);
+			}
+		});
+	};
+
+	const removeExpenseBudget = (category) => {
+		const tempCategories = [...expenseCategories];
+		tempCategories.find((cat) => {
+			if (cat.name === category.name) {
+				cat.tracked = false;
+				cat.allowance = 0;
+				cat.numWeeks = 1;
+				setExpenseCategories(tempCategories);
 			}
 		});
 	};
@@ -118,6 +177,24 @@ export default function Budgets() {
 		}
 		setSavingEditValues({
 			[name]: +value,
+		});
+	};
+
+	const handleExpenseBudgetChange = (e) => {
+		const { name, value } = e.target;
+		if (name === 'allowance' && isNaN(value)) {
+			return;
+		}
+		if (name === 'numWeeks' && !isNaN(value)) {
+			setExpenseEditValues({
+				...expenseEditValues,
+				[name]: +value,
+			});
+			return;
+		}
+		setExpenseEditValues({
+			...expenseEditValues,
+			[name]: value,
 		});
 	};
 
@@ -137,6 +214,42 @@ export default function Budgets() {
 			hasError = true;
 		}
 		setSavingEditErrors(newErrors);
+		return !hasError;
+	};
+
+	const validateExpenseInput = () => {
+		const newErrors = {
+			allowance: '',
+			startDate: '',
+			numWeeks: '',
+		};
+		let hasError = false;
+
+		// allowance
+		if (isNaN(expenseEditValues.allowance) || !expenseEditValues.allowance) {
+			newErrors.allowance = 'Please enter a valid number';
+			hasError = true;
+		} else if (expenseEditValues.allowance <= 0) {
+			newErrors.allowance = 'Please set an allowance higher than 0';
+			hasError = true;
+		}
+
+		// startDate
+		if (!expenseEditValues.startDate) {
+			newErrors.startDate = 'Please select the start date';
+			hasError = true;
+		}
+
+		// numWeeks
+		if (isNaN(expenseEditValues.numWeeks) || !expenseEditValues.numWeeks) {
+			newErrors.numWeeks = 'Please enter a valid number';
+			hasError = true;
+		} else if (expenseEditValues.numWeeks <= 0) {
+			newErrors.numWeeks = 'Please set the number of weeks greater than 0';
+			hasError = true;
+		}
+
+		setExpenseEditErrors(newErrors);
 		return !hasError;
 	};
 
@@ -248,7 +361,7 @@ export default function Budgets() {
 											</Btn>
 											<Btn
 												onClick={() => {
-													removeBudget(category);
+													removeSavingBudget(category);
 												}}
 											>
 												Remove Budget
@@ -269,6 +382,118 @@ export default function Budgets() {
 
 				{/* If there is not a tracked category in expenses, display text telling there is none
 					if there are some being tracked, show each as an accordion. */}
+				{expenseCategories.map((category) =>
+					category.tracked ? (
+						<Accordion key={category.name}>
+							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+								{category.name}
+							</AccordionSummary>
+							<AccordionDetails>
+								{expenseEditId === category.name ? (
+									// show edit details
+									<Box
+										sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
+									>
+										<TextField
+											name='allowance'
+											type='number'
+											sx={{ width: '100%' }}
+											label='Spendable Allowance'
+											required
+											onChange={(e) => handleExpenseBudgetChange(e)}
+											error={!!expenseEditErrors.allowance}
+											helperText={expenseEditErrors.allowance}
+										></TextField>
+										<TextField
+											type='date'
+											sx={{ width: '100%' }}
+											label='Date to start budget'
+											name='startDate'
+											required
+											onChange={(e) => handleExpenseBudgetChange(e)}
+											error={!!expenseEditErrors.startDate}
+											helperText={expenseEditErrors.startDate}
+										></TextField>
+										<TextField
+											type='number'
+											sx={{ width: '100%' }}
+											label='Number of weeks to budget'
+											name='numWeeks'
+											required
+											onChange={(e) => handleExpenseBudgetChange(e)}
+											error={!!expenseEditErrors.numWeeks}
+											helperText={expenseEditErrors.numWeeks}
+										></TextField>
+										<Box
+											sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+										>
+											<Btn
+												onClick={() => {
+													if (validateExpenseInput()) {
+														handleExpenseBudgetSubmit(category);
+														setExpenseEditId(null);
+													}
+												}}
+											>
+												Update Changes
+											</Btn>
+											<Btn onClick={() => setExpenseEditId(null)}>
+												Cancel Changes
+											</Btn>
+										</Box>
+									</Box>
+								) : (
+									// show category details
+									<>
+										<Typography>
+											Remaining Allowance:{' '}
+											<span style={{ fontWeight: 'bold' }}>${'todo'}</span>
+										</Typography>
+										<Typography>
+											Start Date:{' '}
+											<span style={{ fontWeight: 'bold' }}>
+												{category.startDate}
+											</span>
+										</Typography>
+										<Typography>
+											Number of weeks:{' '}
+											<span style={{ fontWeight: 'bold' }}>
+												{category.numWeeks}
+											</span>
+										</Typography>
+										<Typography>
+											Renews on:{' '}
+											<span style={{ fontWeight: 'bold' }}>{'todo'}</span>
+										</Typography>
+										<Box
+											sx={{
+												display: 'flex',
+												flexDirection: 'column',
+												p: 1,
+												gap: 1,
+											}}
+										>
+											<Btn
+												onClick={() => {
+													setExpenseEditId(category.name);
+												}}
+											>
+												Edit Budget
+											</Btn>
+											<Btn
+												onClick={() => {
+													removeExpenseBudget(category);
+												}}
+											>
+												Remove Budget
+											</Btn>
+										</Box>
+									</>
+								)}
+							</AccordionDetails>
+						</Accordion>
+					) : null
+				)}
 			</Box>
 		</Box>
 	);

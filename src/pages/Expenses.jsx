@@ -89,6 +89,7 @@ export default function Expenses() {
 						tracked: tempCategory.tracked,
 						startDate: tempCategory.startDate,
 						numWeeks: tempCategory.numWeeks,
+						allowance: tempCategory.allowance,
 					},
 				]);
 			} else {
@@ -100,6 +101,7 @@ export default function Expenses() {
 						tracked: false,
 						startDate: format(new Date(), 'yyyy-MM-dd'),
 						numWeeks: 1,
+						allowance: 0,
 					},
 				]);
 			}

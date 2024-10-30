@@ -1,8 +1,15 @@
-import { Box, Container, MenuItem, Typography, TextField } from '@mui/material';
+import {
+	Box,
+	Container,
+	MenuItem,
+	Typography,
+	TextField,
+	Paper,
+} from '@mui/material';
 import { useLocalStorage } from '../utils/hooks';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import Btn from './Btn';
+import { Btn } from '../utils/components';
 
 export default function SavingsBudgetForm({ onClick, closeForm }) {
 	// State that holds categories for savings
@@ -61,7 +68,7 @@ export default function SavingsBudgetForm({ onClick, closeForm }) {
 	};
 
 	return (
-		<Box sx={{ m: 2 }}>
+		<Box sx={{ m: 2 }} component={Paper} elevation={3}>
 			<Container
 				sx={{
 					border: '1px solid black',
