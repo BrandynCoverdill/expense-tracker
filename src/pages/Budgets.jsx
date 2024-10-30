@@ -328,7 +328,13 @@ export default function Budgets() {
 					if there are some being tracked, show each as an accordion. */}
 				{savingCategories.map((category) =>
 					category.tracked ? (
-						<Accordion key={category.name}>
+						<Accordion
+							key={category.name}
+							sx={{
+								backgroundColor:
+									findTotalSaved(category) >= category.goal ? '#e0ffe0' : '',
+							}}
+						>
 							<AccordionSummary expandIcon={<ArrowDropDownIcon />}>
 								{category.name}: {findPercentageSaved(category)}% saved
 							</AccordionSummary>
