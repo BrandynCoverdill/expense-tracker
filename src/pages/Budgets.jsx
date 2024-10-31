@@ -290,8 +290,13 @@ export default function Budgets() {
 		// find the total expenses from that date range
 		const filteredData = expenses.filter(
 			(expense) =>
-				parse(expense.date, 'yyyy-MM-dd', new Date()) >= previousRenewalDate
+				expense.date >= format(previousRenewalDate, 'yyyy-MM-dd') &&
+				expense.date <= format(renewalDate, 'yyyy-MM-dd') &&
+				expense.category === category.name
 		);
+		if (category.name === 'Pet Care') {
+			console.log('Expenses: ', filteredData);
+		}
 		const total = filteredData.reduce(
 			(total, expense) => total + expense.amount,
 			0
