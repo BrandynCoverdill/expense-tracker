@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useLocalStorage } from '../utils/hooks';
+import { SavingsChart } from '../utils/components';
 
 export default function Dashboard() {
 	/**
@@ -142,7 +143,11 @@ export default function Dashboard() {
 						.map((cat) => (
 							<Accordion key={cat.name}>
 								<AccordionSummary>{cat.name}</AccordionSummary>
-								<AccordionDetails></AccordionDetails>
+								<AccordionDetails>
+									<Box>
+										<SavingsChart category={cat} />
+									</Box>
+								</AccordionDetails>
 							</Accordion>
 						))}
 				</Box>

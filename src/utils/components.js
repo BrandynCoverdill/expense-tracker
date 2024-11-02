@@ -5,40 +5,7 @@ import ExpenseForm from '../components/ExpenseForm';
 import SavingsForm from '../components/SavingsForm';
 import SavingsBudgetForm from '../components/SavingsBudgetForm';
 import SpendableBudgetForm from '../components/SpendableBudgetForm';
-
-// TODO: Create components
-/**
- * Components to Create:
- *
- * Global Components
- * - Nav
- * - User
- * - Button
- *
- * Income Page
- * - IncomeBucket
- * - IncomeBucketItem
- * - IncomeBucketForm
- * - IncomeItemForm
- *
- * Savings Page
- * - SavingsBucket
- * - SavingsBucketItem
- * - SavingsBucketForm
- * - SavingsItemForm
- *
- * Expense Page
- * - ExpenseBucket
- * - ExpenseBucketItem
- * - ExpenseBucketForm
- * - ExpenseItemForm
- *
- * Budget Page
- * -
- *
- * Dashboard Page
- * -
- */
+import SavingsChart from '../components/SavingsChart';
 
 export {
 	Btn,
@@ -47,4 +14,5 @@ export {
 	SavingsForm,
 	SpendableBudgetForm,
 	SavingsBudgetForm,
+	SavingsChart,
 };

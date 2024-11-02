@@ -1,5 +1,6 @@
 // Common functions to use throughout the app
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import { useLocalStorage } from './hooks';
 
 const addExpenses = () => {
 	return [
@@ -286,6 +287,22 @@ const addSavingsCategories = () => {
 	];
 };
 
+/**
+ * Calculates the total amount saved under a given saving category.
+ * @param {Object} category The category object to find the total amount saved for.
+ * @returns {Number} The total amount saved for the given category.
+ */
+const findTotalSaved = (category) => {
+	const [savings, setSavings] = useLocalStorage('savings', []);
+
+	// Find total saved by category given in function argument
+	const totalSaved = savings
+		.filter((cat) => cat.category === category.name)
+		.reduce((total, cat) => total + cat.amount, 0);
+
+	return totalSaved;
+};
+
 export {
 	addExpenses,
 	addExpensesCategories,
@@ -293,4 +310,5 @@ export {
 	addIncomeCategories,
 	addSavings,
 	addSavingsCategories,
+	findTotalSaved,
 };
