@@ -6,6 +6,7 @@ import SavingsForm from '../components/SavingsForm';
 import SavingsBudgetForm from '../components/SavingsBudgetForm';
 import SpendableBudgetForm from '../components/SpendableBudgetForm';
 import SavingsChart from '../components/SavingsChart';
+import SavingsReport from '../components/SavingsReport';
 
 export {
 	Btn,
@@ -15,4 +16,5 @@ export {
 	SpendableBudgetForm,
 	SavingsBudgetForm,
 	SavingsChart,
+	SavingsReport,
 };

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useLocalStorage } from '../utils/hooks';
-import { SavingsChart } from '../utils/components';
+import { SavingsChart, SavingsReport } from '../utils/components';
 
 export default function Dashboard() {
 	/**
@@ -138,14 +138,26 @@ export default function Dashboard() {
 					}}
 				></Box>
 				<Box sx={{ mt: 2, width: '100%', maxWidth: '800px' }}>
+					{savingsCategories.every((cat) => !cat.tracked) && (
+						<Typography>
+							Create a Saving Budget to see a visualization here
+						</Typography>
+					)}
 					{savingsCategories
 						.filter((cat) => cat.tracked)
 						.map((cat) => (
 							<Accordion key={cat.name}>
 								<AccordionSummary>{cat.name}</AccordionSummary>
 								<AccordionDetails>
-									<Box>
+									<Box
+										sx={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 4,
+										}}
+									>
 										<SavingsChart category={cat} />
+										<SavingsReport category={cat} />
 									</Box>
 								</AccordionDetails>
 							</Accordion>
